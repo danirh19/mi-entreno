@@ -26,7 +26,7 @@ html{background:var(--bg)}
 body{background:linear-gradient(180deg,#F5F7FC 0%,#E9EDF6 60%,#E5EAF4 100%);background-attachment:fixed;color:var(--tx);overscroll-behavior:none;padding-bottom:78px;line-height:1.4;-webkit-font-smoothing:antialiased}
 .wrap{max-width:640px;margin:0 auto;min-height:100vh}
 input,button,select,textarea{font-family:inherit;color:inherit}
-button{cursor:pointer;border:none;background:none}
+button{cursor:pointer;border:none;background:none;touch-action:manipulation}
 select{-webkit-appearance:none;appearance:none}
 ::-webkit-scrollbar{display:none}
 
@@ -909,7 +909,7 @@ tReset.onclick=()=>{stopRest();restLeft=restSet;updRest()};
 function stopRest(){restRun=false;document.getElementById("timer").classList.remove("run");tStart.textContent="Iniciar";clearInterval(restTimer)}
 updRest();
 
-let toastT;function toast(m){let el=document.getElementById("toast");if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#131A2B;color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:88%;text-align:center;transition:opacity .3s";document.body.appendChild(el)}el.textContent=m;el.style.opacity="1";clearTimeout(toastT);toastT=setTimeout(()=>el.style.opacity="0",2600)}
+let toastT;function toast(m){let el=document.getElementById("toast");if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#131A2B;color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:88%;text-align:center;transition:opacity .3s;pointer-events:none";document.body.appendChild(el)}el.textContent=m;el.style.opacity="1";clearTimeout(toastT);toastT=setTimeout(()=>el.style.opacity="0",2600)}
 
 /* ===== SINCRONIZACIÓN NUBE (Google Drive vía Apps Script) ===== */
 const SK="miEntreno_syncUrl";
