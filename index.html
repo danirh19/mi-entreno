@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<script type="application/json" id="cowork-artifact-meta">
+<!DOCTYPE html><script type="application/json" id="cowork-artifact-meta">
 {
   "name": "Mi Entreno",
   "schemaVersion": 1,
@@ -270,6 +269,8 @@ svg.chart{width:100%;height:auto;display:block}
 .exnrow .exnhd{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px}
 .exnrow .exnhd span{font-size:10.5px;color:var(--mut2);font-weight:700}
 .exnrow .exntx{font-size:13px;color:var(--mut);margin-top:4px}
+.volbar{height:6px;background:var(--elev);border-radius:20px;overflow:hidden;margin:3px 0 9px}
+.volbar span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:20px}
 .dayacc summary .tcdot{display:inline-block;margin-right:6px;vertical-align:middle}
 #routineEditor .f{margin-bottom:8px}
 #routineEditor .f label{display:block;font-size:11px;font-weight:700;color:var(--mut);margin-bottom:3px}
@@ -862,21 +863,23 @@ function renderBadges(){const tot=totalSessions();const st=computeStreak();
   document.getElementById("badgesStreak").innerHTML=STK_MILE.map((m,i)=>{const un=st>=m;const pv=i?STK_MILE[i-1]:0;const pct=un?100:Math.max(0,Math.round((st-pv)/(m-pv)*100));return `<div class="badge ${un?'':'lock'}"><div class="ic">${un?'🔥':m}</div><div class="bt">${m} días</div>${un?'<div class="bd">logrado</div>':`<div class="pb"><span style="width:${pct}%"></span></div>`}</div>`}).join("");
   document.getElementById("badgesSes").innerHTML=SES_MILE.map((m,i)=>{const un=tot>=m;const pv=i?SES_MILE[i-1]:0;const pct=un?100:Math.max(0,Math.round((tot-pv)/(m-pv)*100));return `<div class="badge ${un?'':'lock'}"><div class="ic">${un?'★':m}</div><div class="bt">${m} ses.</div>${un?'<div class="bd">logrado</div>':`<div class="pb"><span style="width:${pct}%"></span></div>`}</div>`}).join("");
   const ach=S.achievements||[];document.getElementById("achCnt").textContent=ach.length?ach.length:"";
-  document.getElementById("badgesAch").innerHTML=ach.length?ach.map(a=>`<div class="achrow"><span class="achic">🏅</span><div class="achtt"><div class="acht">${a.text.replace(/^🏅 /,"")}</div><div class="achd">${a.date}</div></div></div>`).join(""):`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Cuando batas un récord o cumplas un objetivo, aparecerá aquí. 🏅</div>`}
+  document.getElementById("badgesAch").innerHTML=ach.length?ach.map((a,i)=>`<div class="achrow"><span class="achic">🏅</span><div class="achtt"><div class="acht">${a.text.replace(/^🏅 /,"")}</div><div class="achd">${a.date}</div></div></div>`).join(""):`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Cuando batas un récord o cumplas un objetivo, aparecerá aquí. 🏅</div>`;
+  }
 function renderEst(){
-  const isM=actMode==="mes";const mkey=progMonth.getFullYear()+"-"+pad(progMonth.getMonth()+1);const mgAgg={};let wk=0;
-  if(isM){Object.keys(S.sessions).forEach(dt=>{if(dt.slice(0,7)!==mkey)return;const s=S.sessions[dt];if(s.status!=="done"||!s.entries)return;const d=dayById(s.dayId);if(!d)return;
-    Object.entries(s.entries).forEach(([id,sets])=>{const ex=d.ex.find(x=>x.id===id);if(!ex)return;const g=mgOf(ex);if(g==="Cardio")return;const done=sets.filter(x=>x&&(x[0]||x[1])).length;if(!done)return;mgAgg[g]=mgAgg[g]||{total:0,items:{}};mgAgg[g].total+=done;mgAgg[g].items[ex.n]=(mgAgg[g].items[ex.n]||0)+done;wk+=done})})}
-  else{const schIds=Object.values(S.schedule).filter(Boolean);S.routine.forEach(d=>{if(!schIds.includes(d.id))return;d.ex.forEach(e=>{const g=mgOf(e);if(g==="Cardio")return;mgAgg[g]=mgAgg[g]||{total:0,items:{}};mgAgg[g].total+=e.s||0;mgAgg[g].items[e.n]=(mgAgg[g].items[e.n]||0)+(e.s||0);wk+=e.s||0})})}
-  // series/semana equivalentes: en mes divide entre semanas transcurridas
-  let weeksDiv=1;
-  if(isM){const now=new Date();const dim=new Date(progMonth.getFullYear(),progMonth.getMonth()+1,0).getDate();let daysEl=dim;if(progMonth.getFullYear()===now.getFullYear()&&progMonth.getMonth()===now.getMonth())daysEl=now.getDate();weeksDiv=Math.max(1,daysEl/7)}
-  function rngBadge(perWk){let lbl,col;if(perWk<10){lbl='bajo';col='#E08A2B'}else if(perWk<=20){lbl='óptimo';col='#2E9E6A'}else{lbl='alto';col='#E0574C'}return `<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:${hexA(col,.14)};color:${col};margin-left:7px">${lbl}</span>`}
-  const order=Object.keys(mgAgg).sort((a,b)=>mgAgg[b].total-mgAgg[a].total);
-  const sub=order.map(g=>{const perWk=mgAgg[g].total/weeksDiv;return `<details class="subacc"><summary>${g}<span class="vn">${mgAgg[g].total} series${rngBadge(perWk)}</span></summary><div class="sb">${isM?`<div class="sr" style="color:var(--mut2)"><span>Media/semana</span><span>${(perWk).toFixed(1)}</span></div>`:''}${Object.entries(mgAgg[g].items).map(([n,s])=>`<div class="sr"><span>${n}</span><span>${s}</span></div>`).join("")}</div></details>`}).join("");
-  document.getElementById("volAcc").innerHTML=sub+`<div class="volrow" style="border-top:1.5px solid var(--blue);margin-top:4px"><span style="font-weight:800">Total</span><span class="vn">${wk} series</span></div>`;
-  document.getElementById("volCnt").textContent=wk+" series";
-  document.getElementById("volNote").innerHTML=(isM?"Series realizadas este mes por grupo. El semáforo compara la media semanal con el rango recomendado.":"Series semanales planificadas por grupo. El semáforo las compara con el rango recomendado.")+` <b style="color:var(--blue2)">10–20 series/semana</b>.`;
+  const isM=actMode==="mes";const mkey=progMonth.getFullYear()+"-"+pad(progMonth.getMonth()+1);
+  const plan=weeklyPlannedMG();
+  let doneAgg={},target={};
+  if(isM){const dim=new Date(progMonth.getFullYear(),progMonth.getMonth()+1,0).getDate();doneAgg=mgDoneRange(mkey+"-01",mkey+"-"+pad(dim));const weeks=dim/7;Object.keys(plan).forEach(g=>target[g]=Math.round(plan[g]*weeks))}
+  else{const mon=mondayOf(new Date());const s2=new Date(mon);s2.setDate(mon.getDate()+6);doneAgg=mgDoneRange(ymd(mon),ymd(s2));target=Object.assign({},plan)}
+  function rngBadge(wp){let lbl,col;if(wp<10){lbl='bajo';col='#E08A2B'}else if(wp<=20){lbl='óptimo';col='#2E9E6A'}else{lbl='alto';col='#E0574C'}return `<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:${hexA(col,.14)};color:${col};margin-left:7px">${lbl}</span>`}
+  const groups=[...new Set([...Object.keys(plan),...Object.keys(doneAgg)])].sort((a,b)=>(target[b]||0)-(target[a]||0));
+  let totDone=0,totTarget=0;
+  const sub=groups.map(g=>{const d=(doneAgg[g]&&doneAgg[g].total)||0;const p=target[g]||0;totDone+=d;totTarget+=p;const pct=p?Math.min(100,Math.round(d/p*100)):0;
+    const items=(doneAgg[g]&&doneAgg[g].items)||{};const itemRows=Object.keys(items).length?Object.entries(items).map(([n,s])=>`<div class="sr"><span>${n}</span><span>${s}</span></div>`).join(""):`<div class="sr" style="color:var(--mut2)"><span>Aún sin series hechas</span><span>0</span></div>`;
+    return `<details class="subacc"><summary>${g}<span class="vn"><b style="color:${d>=p&&p?'var(--ok)':'var(--blue2)'}">${d}</b> / ${p}${rngBadge(plan[g]||0)}</span></summary><div class="sb"><div class="volbar"><span style="width:${pct}%"></span></div>${itemRows}</div></details>`}).join("");
+  document.getElementById("volAcc").innerHTML=sub+`<div class="volrow" style="border-top:1.5px solid var(--blue);margin-top:4px"><span style="font-weight:800">Total</span><span class="vn"><b style="color:var(--blue2)">${totDone}</b> / ${totTarget} series</span></div>`;
+  document.getElementById("volCnt").textContent=totDone+" / "+totTarget;
+  document.getElementById("volNote").innerHTML=`Series <b>hechas / que deberías hacer</b> por grupo (${isM?"este mes":"esta semana"}). El semáforo compara tu plan semanal con <b style="color:var(--blue2)">10–20 series/semana</b>.`;
   const prs=computePRs();const ks=Object.keys(prs);document.getElementById("prCnt").textContent=ks.length+" ejerc.";
   document.getElementById("prBox").innerHTML=ks.length?ks.slice(0,16).map(n=>`<div class="pr"><span>${n}</span><span style="text-align:right"><span class="prv">${prs[n].kg} ${U()}</span><br><span class="prsub">~1RM ${prs[n].orm} ${U()}</span></span></div>`).join(""):`<div style="font-size:12px;color:var(--mut2);text-align:center;padding:12px 0">Registra sesiones y aparecerán tus marcas.</div>`;
   const sel=document.getElementById("progSel");const all=[];S.routine.forEach(d=>d.ex.forEach(e=>{if(exType(e)!=="cardio")all.push(e.n)}));const uq=[...new Set(all)];const keep=sel.value;
@@ -913,10 +916,15 @@ bwAdd.onclick=()=>{const v=parseFloat(bwInput.value);if(isNaN(v))return;S.bodywe
 /* COACH */
 function nowLbl(){return new Date().toLocaleDateString('es-ES',{day:'numeric',month:'short'})}
 function trainDays(){const schIds=Object.values(S.schedule).filter(Boolean);const seen=new Set();return S.routine.filter(d=>schIds.includes(d.id)&&!seen.has(d.id)&&seen.add(d.id))}
-function renderExNotes(){const box=document.getElementById("exNotesBox");if(!box)return;const list=[];
-  Object.keys(S.sessions).sort().reverse().forEach(dt=>{const s=S.sessions[dt];if(!s||!s.exnotes)return;const d=dayById(s.dayId);Object.keys(s.exnotes).forEach(id=>{const txt=s.exnotes[id];if(!txt||!(""+txt).trim())return;const ex=d&&d.ex.find(x=>x.id===id);list.push({dt,day:d?d.name:"",ex:ex?ex.n:id,txt})})});
-  if(!list.length){box.innerHTML=`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Aquí se recopilan las notas que escribes dentro de cada ejercicio en el entreno.</div>`;return}
-  box.innerHTML=list.slice(0,40).map(n=>`<div class="exnrow"><div class="exnhd"><b>${n.ex}</b><span>${n.day} · ${new Date(n.dt+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}</span></div><div class="exntx">${n.txt}</div></div>`).join("")}
+function renderExNotes(){const box=document.getElementById("exNotesBox");if(!box)return;
+  const byDay={};
+  Object.keys(S.sessions).sort().reverse().forEach(dt=>{const s=S.sessions[dt];if(!s||!s.exnotes)return;const d=dayById(s.dayId);if(!d)return;
+    Object.keys(s.exnotes).forEach(id=>{const txt=s.exnotes[id];if(!txt||!(""+txt).trim())return;const ex=d.ex.find(x=>x.id===id);
+      byDay[d.id]=byDay[d.id]||{name:d.name,dot:d.dot,items:[]};byDay[d.id].items.push({ex:ex?ex.n:id,txt,dt})})});
+  const keys=Object.keys(byDay);
+  if(!keys.length){box.innerHTML=`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Aquí se recopilan las notas que escribes dentro de cada ejercicio, agrupadas por día de rutina.</div>`;return}
+  const order=S.routine.map(d=>d.id);keys.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  box.innerHTML=keys.map(k=>{const g=byDay[k];return `<details class="acc dayacc"><summary><span class="tcdot" style="background:${g.dot}"></span>${g.name} <span class="cnt">${g.items.length}</span></summary><div class="body">${g.items.map(n=>`<div class="exnrow" style="border-left:3px solid ${g.dot}"><div class="exnhd"><b>${n.ex}</b><span>${new Date(n.dt+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}</span></div><div class="exntx">${n.txt}</div></div>`).join("")}</div></details>`}).join("")}
 function renderCoach(){renderFocus();renderGoals();renderCheckin();renderDiary();renderExNotes();
   const tips=[];const st=computeStreak();const done=weekDone();const goal=+S.profile.meta||6;
   if(st>=3)tips.push(["okt",`${streakEmoji(st)} Racha de ${st} días. Estás construyendo el hábito — no la rompas.`]);
@@ -929,13 +937,14 @@ function renderCoach(){renderFocus();renderGoals();renderCheckin();renderDiary()
   // tendencia de peso
   const bw=S.bodyweight;if(bw.length>=2){const dl=+(+bw[bw.length-1].kg-(+bw[0].kg)).toFixed(1);if(dl<0)tips.push(["okt",`Peso ${dl} kg desde el primer registro. Bajando manteniendo entreno = vas en recomposición 👌`]);else if(dl>0.8)tips.push(["","Peso al alza. Si buscas recomposición, revisa el aporte calórico de la nutrición."])}
   // check-in molestias
-  const ci=S.checkins[weekKey()];if(ci&&ci.molestias>=4)tips.push(["warnt","Marcaste molestias altas esta semana. No fuerces técnica ni cargas: mejor bajar peso que arriesgar lesión."]);
-  if(ci&&ci.energia&&ci.energia<=2)tips.push(["","Energía baja esta semana. Prioriza sueño y comida antes de subir cargas."]);
+  const ckKeys=Object.keys(S.checkins||{}).sort();const ci=ckKeys.length?S.checkins[ckKeys[ckKeys.length-1]]:null;if(ci&&ci.molestias>=4)tips.push(["warnt","Marcaste molestias altas en tu último check-in. No fuerces técnica ni cargas: mejor bajar peso que arriesgar lesión."]);
+  if(ci&&ci.energia&&ci.energia<=2)tips.push(["","Energía baja en tu último check-in. Prioriza sueño y comida antes de subir cargas."]);
   if(totalSessions()===0)tips.push(["","Aún sin sesiones. Dale a Empezar y registra tu primer día 💪"]);
   document.getElementById("autoTips").innerHTML=tips.map(t=>`<div class="tip ${t[0]}">${t[1]}</div>`).join("");
   document.getElementById("coachNotes").innerHTML=S.coachNotes.length?S.coachNotes.map((c,i)=>`<div class="coachnote"><button class="del" data-delcn="${i}" style="position:absolute;top:8px;right:10px;color:var(--mut2);background:none">✕</button><div class="cd">${c.date}</div>${c.txt}</div>`).join(""):`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Aún no hay notas del coach. Exporta tu progreso, pásamelo en el chat y te dejo aquí el plan con "Importar del coach".</div>`;
   document.querySelectorAll("[data-delcn]").forEach(b=>b.onclick=()=>{S.coachNotes.splice(+b.dataset.delcn,1);persist();renderCoach()})}
 function weeklyPlannedMG(){const schIds=Object.values(S.schedule).filter(Boolean);const agg={};S.routine.forEach(d=>{if(!schIds.includes(d.id))return;d.ex.forEach(e=>{const g=mgOf(e);if(g==="Cardio")return;agg[g]=(agg[g]||0)+(+e.s||0)})});return agg}
+function mgDoneRange(from,to){const agg={};Object.keys(S.sessions).forEach(dt=>{if(dt<from||dt>to)return;const s=S.sessions[dt];if(!s||s.status!=="done"||!s.entries)return;const d=dayById(s.dayId);if(!d)return;Object.entries(s.entries).forEach(([id,sets])=>{const ex=d.ex.find(x=>x.id===id);if(!ex)return;const g=mgOf(ex);if(g==="Cardio")return;const done=(sets||[]).filter(x=>x&&(x[0]||x[1])).length;if(done){agg[g]=agg[g]||{total:0,items:{}};agg[g].total+=done;agg[g].items[ex.n]=(agg[g].items[ex.n]||0)+done}})});return agg}
 /* --- Foco de la semana --- */
 function renderFocus(){const f=S.coachFocus||{week:"",days:{}};
   let h=`<div class="card focuscard"><div class="fcwk"><div>${f.week?`<b>${f.week}</b>`:'<span style="color:var(--mut2)">Sin foco definido. Edítalo o impórtalo del coach.</span>'}</div><button class="warmedit" id="focusEdit" style="flex:none">✎ editar</button></div>`;
@@ -979,17 +988,26 @@ function goalSheet(){const g={tipo:"peso",titulo:"",target:"",ex:"",deadline:""}
   form()}
 /* --- Check-in --- */
 function weekKey(d){return ymd(mondayOf(d||new Date()))}
-function renderCheckin(){const wk=weekKey();const c=(S.checkins&&S.checkins[wk])||{energia:0,sueno:0,motiv:0,molestias:0};
-  const rows=[["energia","Energía","⚡"],["sueno","Sueño","😴"],["motiv","Motivación","🔥"],["molestias","Molestias","🩹"]];
-  let h=`<div class="card"><div class="cih">Semana del ${new Date(wk+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}</div>`;
+function renderCheckin(){const rows=[["energia","Energía","⚡"],["sueno","Sueño","😴"],["motiv","Motivación","🔥"],["molestias","Molestias","🩹"]];
+  const c=(S.checkins&&S.checkins[TODAY])||{energia:0,sueno:0,motiv:0,molestias:0};
+  let h=`<div class="card"><div class="cih">Hoy · ${new Date(TODAY+"T12:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"short"})}</div>`;
   h+=rows.map(([k,lbl,em])=>`<div class="cirow"><span class="cilbl">${em} ${lbl}</span><span class="cidots" data-k="${k}">${[1,2,3,4,5].map(v=>`<span class="cidot${c[k]>=v?" on":""}${k==="molestias"&&c[k]>=v?" bad":""}" data-v="${v}"></span>`).join("")}</span></div>`).join("");
-  h+=`<div style="font-size:11px;color:var(--mut2);margin-top:8px">Molestias: 1 = ninguna, 5 = mucha. Lo demás: 1 = bajo, 5 = alto.</div></div>`;
+  h+=`<div style="font-size:11px;color:var(--mut2);margin-top:8px">Rellénalo cada día. Molestias: 1 = ninguna, 5 = mucha. Lo demás: 1 = bajo, 5 = alto.</div></div>`;
+  const weeks={};Object.keys(S.checkins||{}).forEach(ds=>{if(ds===TODAY)return;const c2=S.checkins[ds];if(!c2||!(c2.energia||c2.sueno||c2.motiv||c2.molestias))return;const wk=weekKey(new Date(ds+"T12:00"));weeks[wk]=weeks[wk]||[];weeks[wk].push(c2)});
+  const wkKeys=Object.keys(weeks).sort().reverse();
+  if(wkKeys.length){h+=`<div style="font-size:11px;font-weight:800;color:var(--mut2);letter-spacing:.5px;margin:14px 2px 6px">MEDIA POR SEMANA</div>`;
+    h+=wkKeys.map(wk=>{const arr=weeks[wk];const avg=k=>{const vals=arr.map(x=>x[k]).filter(v=>v>0);return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0};
+      const mon=new Date(wk+"T12:00"),sun=new Date(mon);sun.setDate(mon.getDate()+6);
+      const lbl="📅 "+mon.toLocaleDateString("es-ES",{day:"numeric",month:"short"})+" – "+sun.toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+      return `<details class="acc dayacc"><summary>${lbl} <span class="cnt">${arr.length} día${arr.length>1?"s":""}</span></summary><div class="body">${rows.map(([k,l,em])=>{const a=avg(k);return `<div class="cirow"><span class="cilbl">${em} ${l}</span><b style="color:var(--blue2)">${a?a.toFixed(1):"—"}<span style="font-size:11px;color:var(--mut2);font-weight:600"> /5</span></b></div>`}).join("")}</div></details>`}).join("")}
   document.getElementById("checkinBox").innerHTML=h;
-  document.querySelectorAll(".cidots").forEach(row=>row.querySelectorAll(".cidot").forEach(dot=>dot.onclick=()=>{const k=row.dataset.k,v=+dot.dataset.v;S.checkins=S.checkins||{};S.checkins[wk]=S.checkins[wk]||{energia:0,sueno:0,motiv:0,molestias:0};S.checkins[wk][k]=S.checkins[wk][k]===v?0:v;persist();renderCoach()}))}
+  document.querySelectorAll(".cidots").forEach(row=>row.querySelectorAll(".cidot").forEach(dot=>dot.onclick=()=>{const k=row.dataset.k,v=+dot.dataset.v;S.checkins=S.checkins||{};S.checkins[TODAY]=S.checkins[TODAY]||{energia:0,sueno:0,motiv:0,molestias:0};S.checkins[TODAY][k]=S.checkins[TODAY][k]===v?0:v;persist();renderCheckin()}))}
 /* --- Diario --- */
 function renderDiary(){const box=document.getElementById("diaryBox");
   if(!S.notes.length){box.innerHTML=`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Tu diario está vacío. Apunta sensaciones, molestias, dudas o feedback para el coach.</div>`;return}
-  box.innerHTML=S.notes.map((n,i)=>{const o=typeof n==="string"?{date:"",txt:n}:n;return `<div class="note-item"><button class="del" data-deln="${i}">✕</button>${o.date?`<div style="font-size:10.5px;color:var(--blue);font-weight:700;margin-bottom:4px">${o.date}</div>`:""}${o.txt}</div>`}).join("");
+  const groups=[],idx={};
+  S.notes.forEach((n,i)=>{const o=typeof n==="string"?{date:"",txt:n}:n;const key=o.date||"Sin fecha";if(idx[key]===undefined){idx[key]=groups.length;groups.push({date:key,items:[]})}groups[idx[key]].items.push({txt:o.txt,i})});
+  box.innerHTML=groups.map((g,gi)=>`<details class="acc dayacc"${gi===0?" open":""}><summary>📅 ${g.date} <span class="cnt">${g.items.length} nota${g.items.length>1?"s":""}</span></summary><div class="body">${g.items.map(it=>`<div class="note-item"><button class="del" data-deln="${it.i}">✕</button>${it.txt}</div>`).join("")}</div></details>`).join("");
   document.querySelectorAll("#diaryBox [data-deln]").forEach(b=>b.onclick=()=>{S.notes.splice(+b.dataset.deln,1);persist();renderDiary()})}
 function addDiary(){openSheet(`<h4>Nueva nota · feedback</h4><div class="sub">Sensaciones, molestias, dudas… lo leo cuando exportes.</div><textarea id="shReason" class="rtext" placeholder="Escribe aquí…"></textarea><button class="btn-blue" id="shSave" style="margin-bottom:8px">Guardar</button><button class="cancel" id="shCancel">Cancelar</button>`);const ta=document.getElementById("shReason");if('ontouchstart' in window||navigator.maxTouchPoints>0)setTimeout(()=>{try{ta.focus()}catch(e){}},120);document.getElementById("shCancel").onclick=closeSheet;document.getElementById("shSave").onclick=()=>{const r=ta.value.trim();if(r){S.notes.unshift({date:nowLbl(),txt:r});persist()}closeSheet();renderCoach()}}
 /* --- Importar del coach --- */
@@ -1089,7 +1107,7 @@ exportBtn.onclick=()=>{try{const b=new Blob([JSON.stringify(S)],{type:"applicati
 backupBtn.onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MiEntreno_backup.json";a.click()};
 restoreBtn.onclick=()=>{const i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=()=>{const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);persist();toast("Restaurado ✓");render()}catch(e){toast("Archivo no válido")}};r.readAsText(i.files[0])};i.click()};
 demoBtn.onclick=()=>confirmSheet("Cargar ejemplo","Se cargarán 2 semanas de datos de ejemplo, sustituyendo tus sesiones actuales.",()=>{loadDemo();toast("Ejemplo cargado 🧪");go("progreso")},"Cargar ejemplo");
-function wipeData(){confirmSheet("Empezar de cero","Se borrarán TODAS las sesiones y el peso registrado. Esto no se puede deshacer.",()=>{S.sessions={};S.bodyweight=[];S.demo=false;S.seeded=true;persist();toast("Listo, empiezas de cero 💪");go("inicio")},"Sí, borrar todo")}
+function wipeData(){confirmSheet("Empezar de cero","Se borrarán TODAS las sesiones, el peso registrado y los logros. Esto no se puede deshacer.",()=>{S.sessions={};S.bodyweight=[];S.achievements=[];S.demo=false;S.seeded=true;persist();toast("Listo, empiezas de cero 💪");go("inicio")},"Sí, borrar todo")}
 wipeBtn.onclick=wipeData;
 
 /* REST TIMER */
