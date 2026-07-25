@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Mi Entreno",
+  "schemaVersion": 1,
+  "description": "Mi Entreno — app de seguimiento de entrenamiento (PWA de un solo archivo): registro de series kg/reps, temporizador de descanso tipo iPhone, calendario, rachas, resúmenes semanal y mensual, gráficas de progreso y volumen por grupo muscular. Rutina y calentamiento editables.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -301,14 +310,13 @@ svg.chart{width:100%;height:auto;display:block}
 .addbtn{width:100%;background:transparent;border:1.5px solid rgba(58,91,214,.32);color:rgba(58,91,214,.6);border-radius:10px;padding:11px;font-weight:700;font-size:13px;margin-top:6px}
 .mini{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--mut)}
 
-.timer{position:fixed;right:14px;bottom:230px;z-index:40}
-.timer .tbtn{background:#fff;border:1.5px solid var(--blue);color:var(--blue);font-weight:800;min-width:52px;height:52px;padding:0 14px;border-radius:26px;font-size:21px;box-shadow:0 8px 20px rgba(47,98,214,.22);display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1;box-sizing:border-box;white-space:nowrap}
-.timer .tbtn #timerTxt{font-size:15px}
+.timer{position:fixed;right:0;bottom:230px;z-index:40;display:flex;align-items:stretch}
+.timer .tbtn{background:#fff;border:1.5px solid var(--blue);border-right:none;color:var(--blue);font-weight:800;height:52px;min-width:46px;padding:0 12px;border-radius:15px 0 0 15px;font-size:20px;box-shadow:-6px 7px 20px rgba(47,98,214,.18);display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1;white-space:nowrap;order:2;touch-action:none}
+.timer .tbtn #timerTxt{font-size:14px}
 .timer .tbtn #timerTxt:empty{display:none}
 .timer.run .tbtn{color:#fff;background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent}
-.tpanel{right:0}
-.tpanel{position:absolute;bottom:54px;right:0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;width:236px;display:none;box-shadow:0 12px 34px rgba(30,50,90,.2)}
-.tpanel.on{display:block}
+.tpanel{order:1;align-self:center;background:#fff;border:1px solid var(--line);border-right:none;border-radius:16px 0 0 16px;width:0;padding:0;opacity:0;overflow:hidden;box-shadow:-12px 12px 34px rgba(30,50,90,.2);transition:width .24s ease,opacity .16s,padding .24s}
+.timer.open .tpanel{width:232px;padding:14px;opacity:1}
 .tpanel .tt{font-size:30px;font-weight:800;text-align:center;color:var(--blue);letter-spacing:1px;font-variant-numeric:tabular-nums;margin-bottom:4px}
 .wheel{display:flex;align-items:center;justify-content:center;gap:4px;position:relative;height:132px;margin:6px 0 12px}
 .wheel::before{content:"";position:absolute;top:46px;height:40px;left:8px;right:8px;background:var(--bluesoft);border-radius:9px;pointer-events:none;z-index:0}
@@ -1093,18 +1101,18 @@ function wheelSet(col,idx){col.scrollTop=idx*44}
 function wheelGet(col){return Math.round(col.scrollTop/44)}
 function readWheel(){const m=Math.min(15,Math.max(0,wheelGet(wMin)));const s=Math.min(11,Math.max(0,wheelGet(wSec)))*5;return Math.max(5,m*60+s)}
 let wd;[wMin,wSec].forEach(c=>c.addEventListener("scroll",()=>{clearTimeout(wd);wd=setTimeout(()=>{if(!restRun){restSet=readWheel();restLeft=restSet;updRest()}},120)}));
-timerBtn.onclick=()=>{if(window._timerDragged){window._timerDragged=false;return}const on=document.getElementById("tpanel").classList.toggle("on");if(on){wheelSet(wMin,Math.floor(restSet/60));wheelSet(wSec,Math.round((restSet%60)/5))}};
+timerBtn.onclick=()=>{if(window._timerDragged){window._timerDragged=false;return}const on=document.getElementById("timer").classList.toggle("open");if(on){wheelSet(wMin,Math.floor(restSet/60));wheelSet(wSec,Math.round((restSet%60)/5))}};
 (function(){const t=document.getElementById("timer");if(!t)return;
-  try{const p=JSON.parse(localStorage.getItem("miEntreno_timerPos")||"null");if(p&&typeof p.left==="number"){t.style.left=p.left+"px";t.style.top=p.top+"px";t.style.right="auto";t.style.bottom="auto"}}catch(e){}
-  let sx,sy,ox,oy,moved,dragging=false;
-  function down(e){const pt=e.touches?e.touches[0]:e;sx=pt.clientX;sy=pt.clientY;const r=t.getBoundingClientRect();ox=r.left;oy=r.top;moved=false;dragging=true;window._timerDragged=false;
+  try{const p=JSON.parse(localStorage.getItem("miEntreno_timerPos")||"null");if(p&&typeof p.top==="number"){t.style.top=p.top+"px";t.style.bottom="auto"}}catch(e){}
+  let sy,oy,moved,dragging=false;
+  function down(e){const pt=e.touches?e.touches[0]:e;sy=pt.clientY;const r=t.getBoundingClientRect();oy=r.top;moved=false;dragging=true;window._timerDragged=false;
     document.addEventListener("touchmove",move,{passive:false});document.addEventListener("touchend",up);document.addEventListener("mousemove",move);document.addEventListener("mouseup",up)}
-  function move(e){if(!dragging)return;const pt=e.touches?e.touches[0]:e;const dx=pt.clientX-sx,dy=pt.clientY-sy;
-    if(!moved&&Math.abs(dx)+Math.abs(dy)<7)return;moved=true;window._timerDragged=true;if(e.cancelable)e.preventDefault();
-    const w=t.offsetWidth,h=t.offsetHeight;let nl=Math.max(6,Math.min(window.innerWidth-w-6,ox+dx)),nt=Math.max(56,Math.min(window.innerHeight-h-70,oy+dy));
-    t.style.left=nl+"px";t.style.top=nt+"px";t.style.right="auto";t.style.bottom="auto"}
+  function move(e){if(!dragging)return;const pt=e.touches?e.touches[0]:e;const dy=pt.clientY-sy;
+    if(!moved&&Math.abs(dy)<7)return;moved=true;window._timerDragged=true;if(e.cancelable)e.preventDefault();
+    const h=t.offsetHeight;let nt=Math.max(56,Math.min(window.innerHeight-h-70,oy+dy));
+    t.style.top=nt+"px";t.style.bottom="auto"}
   function up(){dragging=false;document.removeEventListener("touchmove",move);document.removeEventListener("touchend",up);document.removeEventListener("mousemove",move);document.removeEventListener("mouseup",up);
-    if(moved){const r=t.getBoundingClientRect();try{localStorage.setItem("miEntreno_timerPos",JSON.stringify({left:Math.round(r.left),top:Math.round(r.top)}))}catch(e){}}}
+    if(moved){const r=t.getBoundingClientRect();try{localStorage.setItem("miEntreno_timerPos",JSON.stringify({top:Math.round(r.top)}))}catch(e){}}}
   const btn=document.getElementById("timerBtn");btn.addEventListener("touchstart",down,{passive:true});btn.addEventListener("mousedown",down)})();
 function updRest(){const m=Math.floor(restLeft/60),s=restLeft%60;document.getElementById("tDisp").textContent=m+":"+pad(s);document.getElementById("timerTxt").textContent=restRun?(m+":"+pad(s)):""}
 function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const seq=[0,280,560,840,1120,1400];seq.forEach((dl,idx)=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.value=idx%2?988:784;const t0=AC.currentTime+dl/1000;g.gain.setValueAtTime(.001,t0);g.gain.exponentialRampToValueAtTime(.28,t0+.02);g.gain.exponentialRampToValueAtTime(.001,t0+.24);o.start(t0);o.stop(t0+.26)})}catch(e){}}
