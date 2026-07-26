@@ -406,22 +406,25 @@ svg.chart{width:100%;height:auto;display:block}
 .mini{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--mut)}
 
 .timer{position:fixed;left:0;right:0;bottom:72px;z-index:45;pointer-events:none;display:flex;justify-content:center}
-.timer .tbar{pointer-events:auto;width:auto;max-width:calc(100% - 16px);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 6px 22px rgba(30,50,90,.16);display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 13px 10px;transition:transform .25s ease}
+.timer .tbar{pointer-events:auto;width:calc(100% - 16px);max-width:460px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 6px 22px rgba(30,50,90,.16);display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:5px 13px 10px;transition:transform .25s ease}
 .timer.run .tbar{background:linear-gradient(135deg,var(--blue),var(--blue2));border-color:transparent}
 .tbar .grab{width:100%;height:18px;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab}
 .tbar .grab::before{content:"";width:42px;height:5px;border-radius:3px;background:var(--mut2);opacity:.5}
 .timer.run .tbar .grab::before{background:#fff;opacity:.75}
 .trow{display:flex;align-items:center;gap:11px}
+.tside{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:10px}
+.tside.tleft{justify-content:flex-start}
+.tside.tright{justify-content:flex-end}
 .tmode2{flex:0 0 auto;width:46px;height:47px;border-radius:13px;background:var(--card2);font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1}
 .timer.run .tmode2{background:rgba(255,255,255,.22)}
-.ttime{position:relative;flex:0 0 auto;width:124px;height:34px;overflow:hidden}
-.hband{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:118px;height:30px;background:var(--bluesoft);border-radius:9px;pointer-events:none}
+.ttime{position:relative;flex:0 0 auto;width:124px;height:56px;overflow:hidden}
+.hband{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:118px;height:46px;background:var(--bluesoft);border-radius:12px;pointer-events:none}
 .timer.run .hband{display:none}
-.hcar{position:relative;z-index:1;height:34px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;text-align:center}
+.hcar{position:relative;z-index:1;height:56px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;text-align:center}
 .hcar::-webkit-scrollbar{display:none}
 .hcar .hp{height:0}
-.hcar .hi{height:34px;line-height:34px;scroll-snap-align:center;font-size:18px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
-.tlive{display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
+.hcar .hi{height:56px;line-height:56px;scroll-snap-align:center;font-size:21px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
+.tlive{display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
 .timer.live .hcar{visibility:hidden}
 .timer.live .tlive{display:flex}
 .timer.run .tlive{color:#fff;font-size:22px;letter-spacing:1px}
@@ -430,7 +433,7 @@ svg.chart{width:100%;height:auto;display:block}
 .tstart2{flex:0 0 auto;min-width:104px;height:47px;border-radius:13px;background:var(--blue);color:#fff;font-size:14px;font-weight:800;padding:0 18px}
 .timer.run .tstart2{background:#fff;color:var(--blue)}
 .timer.tmin .tbar{transform:translateY(calc(100% - 10px))}
-body.hastimerbar{padding-bottom:150px}
+body.hastimerbar{padding-bottom:166px}
 .exdaywrap{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
 .exdayh{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--blue);margin-bottom:4px}
 .exstat{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
@@ -648,7 +651,7 @@ body.hastimerbar{padding-bottom:150px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v55</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v59</div>
   </div>
 </div>
 
@@ -656,10 +659,9 @@ body.hastimerbar{padding-bottom:150px}
   <div class="tbar" id="tbar">
     <div class="grab" id="tGrab"></div>
     <div class="trow">
-      <button class="tmode2" id="tMode" title="Cambiar modo">⏳</button>
-      <div class="ttime"><div class="hband"></div><div class="hcar" id="tWheel"></div><div class="tlive" id="tDisp">1:30</div></div>
-      <button class="trst2" id="tReset" title="Reset">↺</button>
+      <div class="tside tleft"><button class="tmode2" id="tMode" title="Cambiar modo">⏳</button><button class="trst2" id="tReset" title="Reset">↺</button></div>
       <button class="tstart2" id="tStart">Iniciar</button>
+      <div class="tside tright"><div class="ttime"><div class="hband"></div><div class="hcar" id="tWheel"></div><div class="tlive" id="tDisp">1:30</div></div></div>
     </div>
   </div>
 </div>
@@ -1501,7 +1503,7 @@ wipeBtn.onclick=wipeData;
 /* REST TIMER */
 let restLeft=(S.settings&&S.settings.restDefault)||90,restSet=restLeft,restTimer=null,restRun=false,AC=null,restEnd=0;
 let chronoMode=false,chRun=false,chStart=0,chElapsed=0,chTimer=null;
-const TVALS=[];for(let _s=15;_s<=360;_s+=15)TVALS.push(_s);const TIH=34;
+const TVALS=[];for(let _s=15;_s<=360;_s+=15)TVALS.push(_s);const TIH=56;
 const tWheel=document.getElementById("tWheel");
 tWheel.innerHTML='<div class="hp"></div>'+TVALS.map(v=>`<div class="hi">${Math.floor(v/60)}:${pad(v%60)}</div>`).join("")+'<div class="hp"></div>';
 function tWheelIdx(){return Math.max(0,Math.min(TVALS.length-1,Math.round(tWheel.scrollTop/TIH)))}
