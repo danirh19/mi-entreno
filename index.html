@@ -157,6 +157,8 @@ select{-webkit-appearance:none;appearance:none}
 .mblock{padding:5px 0;border-top:1px solid var(--line)}
 .mblock:first-child{border-top:none;padding-top:0}
 .mspark{margin-top:3px}
+.cloudrow{display:flex;gap:8px;margin-bottom:10px}
+.cloudrow .btn-gray{flex:1;margin-bottom:0}
 .stepbar b{font-size:15px;min-width:80px;text-align:center;color:var(--mut)}
 .edbox{background:var(--card2);border-radius:11px;padding:11px;margin:8px 0}
 .edbox .f{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -212,7 +214,9 @@ select{-webkit-appearance:none;appearance:none}
 .phero .r1{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
 .pav{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;flex:none;overflow:hidden;position:relative;border:2px solid rgba(255,255,255,.4)}
 .pav img{width:100%;height:100%;object-fit:cover}
-.pav .cam{position:absolute;bottom:-3px;right:-3px;width:23px;height:23px;border-radius:50%;background:#fff;color:var(--blue);font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.avwrap{position:relative;flex:none;cursor:pointer}
+.avwrap .cam{position:absolute;bottom:-3px;right:-4px;width:25px;height:25px;border-radius:50%;background:#fff;color:var(--blue);font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.28);border:2px solid var(--blue)}
+.avwrap .cam:active{transform:scale(.92)}
 .phero .nm{font-size:20px;font-weight:800;line-height:1.15}
 .phero .sub{font-size:12.5px;color:rgba(255,255,255,.82);margin-top:2px}
 .phero .obj{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:800;letter-spacing:.4px;background:rgba(255,255,255,.2);padding:4px 11px;border-radius:20px;text-transform:uppercase}
@@ -582,7 +586,7 @@ svg.chart{width:100%;height:auto;display:block}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v36</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v38</div>
   </div>
 </div>
 
@@ -1199,7 +1203,7 @@ function renderPerfilHero(){const box=document.getElementById("perfilHero");if(!
   const bi=bmiInfo();
   const av=p.avatar?`<img src="${p.avatar}">`:ini;
   box.innerHTML=`<div class="phero"><div class="r1">
-    <div class="pav" id="avatarBtn">${av}<span class="cam">📷</span></div>
+    <div class="avwrap" id="avatarBtn"><div class="pav">${av}</div><button class="cam" type="button" aria-label="Cambiar foto">📷</button></div>
     <div style="min-width:0"><div class="nm">${nm}</div><div class="sub">${bits.join(" · ")||"Completa tus datos"}</div>${p.objetivo?`<span class="obj">🎯 ${p.objetivo}</span>`:""}</div>
    </div>
    <div class="pstats">
@@ -1234,15 +1238,32 @@ function compressImg(file,max,q,cb){const rd=new FileReader();rd.onload=e=>{cons
 function addPhotoFile(file){if(!file)return;compressImg(file,560,0.62,data=>{const kg=curWeight();PHOTOS.push({id:"ph"+Date.now(),date:TODAY,img:data,kg});if(persistPhotos())renderPhotos();toast("Foto añadida 📸")})}
 function renderPhotos(){const box=document.getElementById("photosBox");if(!box)return;const ph=PHOTOS.slice().sort((a,b)=>a.date<b.date?1:-1);
   const cnt=document.getElementById("fotoCnt");if(cnt)cnt.textContent=ph.length?ph.length:"";
-  const localNote=`<div class="note" style="margin-bottom:10px">📵 Las fotos se guardan solo en este dispositivo: no se sincronizan con la nube, pero sí se incluyen en la "Copia de seguridad" manual.</div>`;
-  if(!ph.length){box.innerHTML=`<div class="note" style="margin-bottom:10px">Sube fotos de tu progreso (mismo ángulo y luz para comparar mejor). ${localNote.replace(/<[^>]+>/g,"").replace("📵 ","")}</div>`;return;}
+  const localNote=`<div class="note" style="margin-bottom:10px">📵 Las fotos se guardan en este dispositivo (no en la sync automática). Respáldalas en la nube con el botón de abajo, o inclúyelas en la "Copia de seguridad".</div>`;
+  const cloudRow=syncOn()?`<div class="cloudrow"><button class="btn-gray" id="phBackup">☁️ Respaldar fotos</button><button class="btn-gray" id="phRestore">⬇️ Restaurar</button></div>`:`<div class="note" style="margin-bottom:10px;color:var(--mut2)">Conecta la sincronización (Perfil → Sincronización) para respaldar las fotos en la nube.</div>`;
+  if(!ph.length){box.innerHTML=`<div class="note" style="margin-bottom:10px">Sube fotos de tu progreso (mismo ángulo y luz para comparar mejor). ${localNote.replace(/<[^>]+>/g,"").replace("📵 ","")}</div>`+cloudRow;const rb0=document.getElementById("phRestore");if(rb0)rb0.onclick=restorePhotos;return;}
   const cmp=ph.length>=2?`<button class="btn-gray" id="cmpBtn" style="margin-bottom:10px">⇄ Comparar antes / después</button>`:"";
   const exp=`<button class="btn-gray" id="expPhBtn" style="margin-bottom:10px">📤 Exportar collage de progreso</button>`;
-  box.innerHTML=localNote+cmp+exp+`<div class="pgrid">`+ph.map(p=>`<div class="pgc" data-pv="${p.id}"><img src="${p.img}"><button class="x" data-pdel="${p.id}">✕</button><div class="dt">${fmtShort(p.date)}${p.kg?` · ${p.kg}kg`:""}</div></div>`).join("")+`</div>`;
+  box.innerHTML=localNote+cloudRow+cmp+exp+`<div class="pgrid">`+ph.map(p=>`<div class="pgc" data-pv="${p.id}"><img src="${p.img}"><button class="x" data-pdel="${p.id}">✕</button><div class="dt">${fmtShort(p.date)}${p.kg?` · ${p.kg}kg`:""}</div></div>`).join("")+`</div>`;
   box.querySelectorAll("[data-pv]").forEach(el=>el.onclick=ev=>{if(ev.target.closest("[data-pdel]"))return;openPhoto(el.dataset.pv)});
   box.querySelectorAll("[data-pdel]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();confirmSheet("Borrar foto","¿Eliminar esta foto de progreso?",()=>{PHOTOS=PHOTOS.filter(x=>x.id!==b.dataset.pdel);persistPhotos();renderPhotos()},"Borrar")});
   const cb=document.getElementById("cmpBtn");if(cb)cb.onclick=openCompare;
-  const eb=document.getElementById("expPhBtn");if(eb)eb.onclick=exportPhotos;}
+  const eb=document.getElementById("expPhBtn");if(eb)eb.onclick=exportPhotos;
+  const bkb=document.getElementById("phBackup");if(bkb)bkb.onclick=backupPhotos;
+  const rsb=document.getElementById("phRestore");if(rsb)rsb.onclick=restorePhotos;}
+function backupPhotos(){if(!syncOn()){toast("Primero conecta la sincronización");return}
+  if(!PHOTOS.length){toast("No hay fotos que respaldar");return}
+  setSyncStatus("Subiendo fotos…","busy");toast("Subiendo "+PHOTOS.length+" fotos a la nube…");
+  fetch(SYNC.url+"?file=photos",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({photos:PHOTOS,_ts:Date.now()})})
+   .then(r=>r.json()).then(()=>{setSyncStatus("Fotos respaldadas ✓","ok");toast("✓ "+PHOTOS.length+" fotos respaldadas en la nube")})
+   .catch(()=>{setSyncStatus("Sin conexión","warn");toast("No se pudo subir. Revisa la conexión")})}
+function restorePhotos(){if(!syncOn()){toast("Primero conecta la sincronización");return}
+  setSyncStatus("Descargando fotos…","busy");
+  fetch(SYNC.url+"?file=photos&t="+Date.now()).then(r=>r.json()).then(d=>{
+    const rp=(d&&d.photos)||[];if(!rp.length){toast("No hay fotos en la nube todavía");setSyncStatus("Sincronizado ✓","ok");return}
+    const byId={};PHOTOS.forEach(p=>byId[p.id]=p);rp.forEach(p=>{if(p&&p.id&&p.img)byId[p.id]=p});
+    PHOTOS=Object.values(byId).sort((a,b)=>a.date<b.date?-1:1);
+    if(persistPhotos()){renderPhotos();setSyncStatus("Fotos restauradas ✓","ok");toast("✓ "+rp.length+" fotos restauradas de la nube")}
+  }).catch(()=>{setSyncStatus("Sin conexión","warn");toast("No se pudo descargar")})}
 function roundRect(x,X,Y,W,H,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath()}
 function exportPhotos(){const ph=PHOTOS.slice().sort((a,b)=>a.date<b.date?-1:1);if(!ph.length)return;toast("Generando collage…");
   const cols=ph.length<=2?ph.length:(ph.length<=6?2:3),rows=Math.ceil(ph.length/cols);
