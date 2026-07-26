@@ -367,6 +367,11 @@ svg.chart{width:100%;height:auto;display:block}
 .suppinfo span{display:block;font-size:11.5px;color:var(--mut2)}
 .supprow .del{background:none;color:var(--mut2);font-size:15px}
 .setrow{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.setcol{padding:10px 0;border-bottom:1px solid var(--line)}
+.setcol .sl2{display:block;font-size:14px;margin-bottom:8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 auto;min-width:62px;background:var(--card2);border:1.5px solid var(--line);border-radius:9px;padding:9px 6px;font-size:12.5px;font-weight:700;color:var(--tx)}
+.seg button.on{background:var(--bluesoft);border-color:var(--blue);color:var(--blue)}
 .setrow:last-of-type{border-bottom:none}
 .setrow select{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;color:var(--tx);-webkit-appearance:none}
 .tgl{width:46px;height:27px;border-radius:16px;background:#ccd3e0;position:relative;transition:background .2s;flex:none}
@@ -643,7 +648,7 @@ body.hastimerbar{padding-bottom:150px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v53</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v55</div>
   </div>
 </div>
 
@@ -732,7 +737,7 @@ function applyDefaults(){
   S.extras=S.extras||[{id:"hang",name:"Colgarse en barra",emoji:"🧗",goal:120}];S.extraLog=S.extraLog||{};
   S.goals=S.goals||[];S.checkins=S.checkins||{};S.coachFocus=S.coachFocus||{week:"",days:{}};
   S.coachTargets=S.coachTargets||{};S.customMantras=S.customMantras||[];S.achievements=S.achievements||[];
-  S.settings=S.settings||{};if(S.settings.restDefault==null)S.settings.restDefault=90;if(S.settings.sound==null)S.settings.sound=true;if(S.settings.vibrate==null)S.settings.vibrate=true;S.settings.units=S.settings.units||"kg";
+  S.settings=S.settings||{};if(S.settings.restDefault==null)S.settings.restDefault=90;if(S.settings.sound==null)S.settings.sound=true;if(S.settings.vibrate==null)S.settings.vibrate=true;S.settings.units=S.settings.units||"kg";if(S.settings.soundVol==null)S.settings.soundVol=0.8;if(S.settings.soundType==null)S.settings.soundType="cortante";
   S.measures=S.measures||{};S.supps=S.supps||[];S.suppLog=S.suppLog||{};
 }
 function U(){return (S.settings&&S.settings.units)||"kg"}
@@ -1399,13 +1404,17 @@ function schedPick(k){const wdn={"0":"Domingo","1":"Lunes","2":"Martes","3":"Mi�
 function renderSettings(){const box=document.getElementById("settingsBox");if(!box)return;const st=S.settings;
   box.innerHTML=`<div class="setrow"><span>⏱ Descanso por defecto</span><select id="setRest">${[45,60,75,90,120,150,180].map(v=>`<option value="${v}"${st.restDefault==v?' selected':''}>${Math.floor(v/60)}:${pad(v%60)}</option>`).join("")}</select></div>
    <div class="setrow"><span>🔊 Sonido al terminar</span><button class="tgl${st.sound?' on':''}" id="setSound"><span></span></button></div>
+   ${st.sound?`<div class="setcol"><span class="sl2">🔈 Volumen del aviso</span><div class="seg" id="volSeg">${[['Bajo',.3],['Medio',.55],['Alto',.8],['Máx',1]].map(o=>`<button data-vol="${o[1]}" class="${Math.abs((st.soundVol==null?.8:st.soundVol)-o[1])<.06?'on':''}">${o[0]}</button>`).join("")}</div></div>
+   <div class="setcol"><span class="sl2">🎵 Sonido del aviso</span><div class="seg" id="sndSeg">${[['Suave','suave'],['Cortante','cortante'],['Campana','campana'],['Triple','triple'],['Ascendente','ascendente'],['Digital','digital'],['Sirena','sirena']].map(o=>`<button data-snd="${o[1]}" class="${(st.soundType||'cortante')===o[1]?'on':''}">${o[0]}</button>`).join("")}</div><div style="font-size:10px;color:var(--mut2);margin-top:6px">Toca una opción para escucharla. "Cortante" es el que mejor atraviesa la música.</div></div>`:''}
    <div class="setrow"><span>☀️ Pantalla activa en descanso</span><button class="tgl${st.keepAwake!==false?' on':''}" id="setWake"><span></span></button></div>
    <div class="setrow"><span>🔔 Aviso al terminar</span><button class="tgl${st.notify?' on':''}" id="setNotify"><span></span></button></div>
    <div style="font-size:10.5px;color:var(--mut2);margin:7px 2px 4px;line-height:1.45"><b>Pantalla activa</b> mantiene la pantalla encendida durante el descanso para que oigas el aviso sin bloquear. En iPhone bloqueado o con la app cerrada, iOS no permite avisos programados (limitación del sistema); al reabrir la app el temporizador siempre muestra el tiempo real.</div>
    <div class="setrow"><span>⚖️ Unidad de peso</span><select id="setUnits"><option value="kg"${st.units==='kg'?' selected':''}>kg</option><option value="lb"${st.units==='lb'?' selected':''}>lb</option></select></div>
    <button class="del" id="resetRoutine" style="width:100%;margin-top:10px">↺ Restablecer rutina de fábrica</button>`;
   document.getElementById("setRest").onchange=e=>{st.restDefault=+e.target.value;if(!restRun&&!chronoMode){restSet=st.restDefault;restLeft=restSet;updRest();try{tWheelSet(restSet)}catch(_){}}persist()};
-  document.getElementById("setSound").onclick=()=>{st.sound=!st.sound;persist();renderSettings()};
+  document.getElementById("setSound").onclick=()=>{st.sound=!st.sound;persist();renderSettings();if(st.sound)playBeep(st.soundType||'cortante',st.soundVol==null?.8:st.soundVol)};
+  document.querySelectorAll("#volSeg button").forEach(b=>b.onclick=()=>{st.soundVol=+b.dataset.vol;persist();renderSettings();playBeep(st.soundType||'cortante',st.soundVol)});
+  document.querySelectorAll("#sndSeg button").forEach(b=>b.onclick=()=>{st.soundType=b.dataset.snd;persist();renderSettings();playBeep(st.soundType,st.soundVol==null?.8:st.soundVol)});
   document.getElementById("setWake").onclick=()=>{st.keepAwake=(st.keepAwake===false);persist();renderSettings();if(st.keepAwake!==false&&restRun)acquireWake()};
   document.getElementById("setNotify").onclick=()=>{if(!st.notify){if("Notification" in window){Notification.requestPermission().then(pm=>{st.notify=(pm==="granted");persist();renderSettings();if(pm!=="granted")toast("Permiso de notificaciones no concedido")})}else{toast("Este navegador no soporta notificaciones")}}else{st.notify=false;persist();renderSettings()}};
   document.getElementById("setUnits").onchange=e=>{st.units=e.target.value;persist();toast("Unidad: "+U());render()};
@@ -1520,7 +1529,18 @@ document.getElementById("timer").classList.toggle("tmin",timerMin);
   grab.addEventListener("touchstart",start,{passive:true});grab.addEventListener("mousedown",start)})();
 let wd;tWheel.addEventListener("scroll",()=>{paintTWheel();clearTimeout(wd);wd=setTimeout(()=>{if(!restRun&&!chronoMode){restSet=readWheel();restLeft=restSet;refreshTimerFace()}},110)});
 function updRest(){const m=Math.floor(restLeft/60),s=restLeft%60;document.getElementById("tDisp").textContent=m+":"+pad(s);refreshTimerFace()}
-function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const seq=[0,280,560,840,1120,1400];seq.forEach((dl,idx)=>{const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.frequency.value=idx%2?988:784;const t0=AC.currentTime+dl/1000;g.gain.setValueAtTime(.001,t0);g.gain.exponentialRampToValueAtTime(.28,t0+.02);g.gain.exponentialRampToValueAtTime(.001,t0+.24);o.start(t0);o.stop(t0+.26)})}catch(e){}}
+function playBeep(type,vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+  const V=Math.max(.05,Math.min(1,vol==null?.8:vol));const now=AC.currentTime;
+  const tone=(f,st2,dur,wave,pk)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=wave;o.frequency.value=f;o.connect(g);g.connect(AC.destination);const t0=now+st2;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(Math.max(.002,pk),t0+.012);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.start(t0);o.stop(t0+dur+.03)};
+  if(type==='campana'){for(let i=0;i<3;i++){tone(1319,i*.62,.6,'sine',V*.9);tone(1976,i*.62,.6,'sine',V*.4)}}
+  else if(type==='triple'){for(let i=0;i<6;i++)tone(1046,i*.2,.15,'triangle',V*.9)}
+  else if(type==='suave'){for(let i=0;i<7;i++)tone(i%2?988:784,i*.3,.28,'sine',V*.75)}
+  else if(type==='ascendente'){const s=[784,988,1319,1568];for(let r=0;r<3;r++)s.forEach((f,i)=>tone(f,r*.62+i*.14,.15,'square',V*.85))}
+  else if(type==='digital'){const s=[1568,1046,1568,2093,1568,1046];for(let r=0;r<2;r++)s.forEach((f,i)=>tone(f,r*.78+i*.12,.1,'square',V*.8))}
+  else if(type==='sirena'){for(let i=0;i<6;i++)tone(i%2?660:880,i*.3,.32,'sawtooth',V*.85)}
+  else{for(let i=0;i<9;i++)tone(i%2?1245:1047,i*.2,.16,'square',V*.9)}
+}catch(e){}}
+function beep(){playBeep((S.settings&&S.settings.soundType)||'cortante',(S.settings&&S.settings.soundVol)||.8)}
 tStart.onclick=()=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume()}catch(e){}
   if(chronoMode){toggleChrono();return}
   if(restRun){stopRest();return}const _res=(restLeft>0&&restLeft<restSet);if(!_res)restSet=readWheel();restLeft=_res?restLeft:restSet;restRun=true;restEnd=Date.now()+restLeft*1000;document.getElementById("timer").classList.add("run");tStart.textContent="Pausa";acquireWake();updRest();
