@@ -64,7 +64,15 @@ select{-webkit-appearance:none;appearance:none}
 .bmini.lock{background:var(--elev);color:var(--mut2);box-shadow:none}
 
 .mcard{background:linear-gradient(120deg,#eef2fc,#f4f7fd);border:1px solid var(--line)}
-.mantra{font-size:14px;color:var(--blue2);font-style:italic;text-align:center;padding:6px;line-height:1.5;font-weight:500}
+.mantra{font-size:14px;color:var(--blue2);font-style:italic;text-align:center;padding:6px 6px 0;line-height:1.5;font-weight:500}
+.mattr{text-align:center;font-size:11px;font-weight:800;color:var(--mut2);margin-top:3px;letter-spacing:.2px}
+.mlike{display:block;margin:10px auto 2px;background:var(--bluesoft);color:var(--blue);border-radius:20px;padding:7px 15px;font-size:12px;font-weight:800}
+.mlike.on{background:#fdecec;color:#d6584c}
+.qlike{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--sh)}
+.qlike .qt{font-size:13px;font-style:italic;color:var(--blue2);line-height:1.45}
+.qlike .qa{font-size:11px;font-weight:700;color:var(--mut2);margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qlike .qx{background:none;color:var(--mut2);font-size:15px;line-height:1;flex:none;padding:0 2px}
+.qempty{font-size:12.5px;color:var(--mut2);text-align:center;padding:8px 6px 2px;line-height:1.5}
 
 .cal .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .cal .ch b{font-size:13.5px;font-weight:800;text-transform:capitalize}
@@ -420,10 +428,10 @@ svg.chart{width:100%;height:auto;display:block}
 .ttime{position:relative;flex:0 0 auto;width:124px;height:56px;overflow:hidden}
 .hband{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:118px;height:46px;background:var(--bluesoft);border-radius:12px;pointer-events:none}
 .timer.run .hband{display:none}
-.hcar{position:relative;z-index:1;height:56px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;text-align:center}
+.hcar{position:relative;z-index:1;height:56px;overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;text-align:center;touch-action:pan-y;overscroll-behavior:contain}
 .hcar::-webkit-scrollbar{display:none}
 .hcar .hp{height:0}
-.hcar .hi{height:56px;line-height:56px;scroll-snap-align:center;font-size:21px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
+.hcar .hi{height:56px;line-height:56px;scroll-snap-align:center;scroll-snap-stop:always;font-size:21px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
 .tlive{display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}
 .timer.live .hcar{visibility:hidden}
 .timer.live .tlive{display:flex}
@@ -499,7 +507,7 @@ body.hastimerbar{padding-bottom:166px}
       <div class="chip"><div class="n" id="tChip">0</div><div class="l">Totales</div></div>
     </div>
     <div class="badgestrip" id="badgeStrip"></div>
-    <div class="card mcard" style="margin-top:13px"><div class="mantra" id="mantra"></div></div>
+    <div class="card mcard" style="margin-top:13px"><div class="mantra" id="mantra"></div><div class="mattr" id="mantraAttr"></div><button class="mlike" id="mantraLike">🤍 Marcar que me ha calado</button></div>
     <div id="coachToday"></div>
     <div class="h">Tu mes</div>
     <div class="card cal" id="homeCal"></div>
@@ -583,6 +591,8 @@ body.hastimerbar{padding-bottom:166px}
     <button class="addbtn" id="addDiaryBtn">+ Añadir nota</button>
     <div class="h">Notas de mis ejercicios</div>
     <div id="exNotesBox"></div>
+    <div class="h">Frases que me han calado</div>
+    <div id="quotesLikedBox"></div>
   </div>
 
   <div class="view" id="v-perfil">
@@ -651,7 +661,7 @@ body.hastimerbar{padding-bottom:166px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v59</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v64</div>
   </div>
 </div>
 
@@ -723,7 +733,27 @@ const DEF_ROUTINE=[
    {id:"p29",n:"Escalera (stair)",s:1,r:"10 min",rir:"—",t:"cardio",type:"cardio"}]},
 ];
 const DEF_SCHEDULE={1:"push",2:"pull",3:"pierna",4:"cardio",5:"torso",6:"pierna2",0:null};
-const MANTRAS=["Nunca falles dos días seguidos.","No cuentan los días, cuenta la constancia.","Sé la persona que no falla al plan.","Los hábitos son el interés compuesto de la mejora.","Hazlo por el que serás en un año.","1% mejor cada día.","La disciplina pesa gramos; el arrepentimiento, toneladas."];
+/* Banco de frases REALES de las obras (texto · autor · obra). Se irá ampliando. */
+const QUOTES=[
+ {t:"No te elevas a la altura de tus metas, sino que caes al nivel de tus sistemas.",a:"James Clear",o:"Hábitos Atómicos"},
+ {t:"Cada acción que realizas es un voto por el tipo de persona en la que deseas convertirte.",a:"James Clear",o:"Hábitos Atómicos"},
+ {t:"Los hábitos son el interés compuesto de la superación personal.",a:"James Clear",o:"Hábitos Atómicos"},
+ {t:"El éxito es el producto de los hábitos diarios, no de transformaciones únicas.",a:"James Clear",o:"Hábitos Atómicos"},
+ {t:"Deberías preocuparte mucho más por tu trayectoria actual que por tus resultados actuales.",a:"James Clear",o:"Hábitos Atómicos"},
+ {t:"Todo lo que la mente puede concebir y creer, lo puede lograr.",a:"Napoleon Hill",o:"Piense y hágase rico"},
+ {t:"El punto de partida de todo logro es el deseo.",a:"Napoleon Hill",o:"Piense y hágase rico"},
+ {t:"La paciencia, la persistencia y el sudor forman una combinación imbatible para el éxito.",a:"Napoleon Hill",o:"Piense y hágase rico"},
+ {t:"El esfuerzo solo entrega toda su recompensa cuando la persona se niega a rendirse.",a:"Napoleon Hill",o:"Piense y hágase rico"},
+ {t:"Si tienes que comerte una rana viva, lo mejor es hacerlo a primera hora de la mañana.",a:"Brian Tracy",o:"¡Tráguese ese sapo!"},
+ {t:"El éxito son las metas; todo lo demás son comentarios.",a:"Brian Tracy",o:"Metas"},
+ {t:"Las personas de éxito son, simplemente, personas con hábitos de éxito.",a:"Brian Tracy",o:"Hábitos de un millón de dólares"},
+ {t:"La autodisciplina es la capacidad de obligarte a hacer lo que debes, cuando debes, tengas ganas o no.",a:"Brian Tracy",o:"Sin excusas"},
+ {t:"No puedes controlar lo que te ocurre, pero sí tu actitud ante lo que te ocurre.",a:"Brian Tracy",o:"Máxima eficacia"},
+ {t:"Solo puedes lograr aquello que ves con claridad en tu mente.",a:"Brian Tracy",o:"Metas"},
+ {t:"Si tienes que comerte dos ranas, cómete primero la más fea.",a:"Brian Tracy",o:"¡Tráguese ese sapo!"},
+ {t:"El éxito es tan predecible como que el sol sale por el este y se pone por el oeste.",a:"Brian Tracy",o:"Seminario Fénix"},
+ {t:"Algo maravilloso va a ocurrirme hoy.",a:"Brian Tracy",o:"Seminario Fénix"}
+];
 
 const K="miEntreno_v3";
 function load(){try{return JSON.parse(localStorage.getItem(K))||{}}catch(e){return{}}}
@@ -738,7 +768,7 @@ function applyDefaults(){
   S.schedule=S.schedule||{...DEF_SCHEDULE};S.sessions=S.sessions||{};S.bodyweight=S.bodyweight||[];S.notes=S.notes||[];S.coachNotes=S.coachNotes||[];
   S.extras=S.extras||[{id:"hang",name:"Colgarse en barra",emoji:"🧗",goal:120}];S.extraLog=S.extraLog||{};
   S.goals=S.goals||[];S.checkins=S.checkins||{};S.coachFocus=S.coachFocus||{week:"",days:{}};
-  S.coachTargets=S.coachTargets||{};S.customMantras=S.customMantras||[];S.achievements=S.achievements||[];
+  S.coachTargets=S.coachTargets||{};S.customMantras=S.customMantras||[];S.achievements=S.achievements||[];S.quotesLiked=S.quotesLiked||{};
   S.settings=S.settings||{};if(S.settings.restDefault==null)S.settings.restDefault=90;if(S.settings.sound==null)S.settings.sound=true;if(S.settings.vibrate==null)S.settings.vibrate=true;S.settings.units=S.settings.units||"kg";if(S.settings.soundVol==null)S.settings.soundVol=0.8;if(S.settings.soundType==null)S.settings.soundType="cortante";
   S.measures=S.measures||{};S.supps=S.supps||[];S.suppLog=S.suppLog||{};
 }
@@ -792,7 +822,7 @@ let hcY=new Date().getFullYear(),hcM=new Date().getMonth();
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function go(v){curView=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));document.getElementById("v-"+v).classList.add("on");
-  document.getElementById("timer").classList.toggle("hidden",v!=="entreno");document.getElementById("timer").classList.toggle("tmin",timerMin);document.body.classList.toggle("hastimerbar",v==="entreno");if(v==="entreno")setTimeout(()=>{positionTimer();if(!chronoMode&&!restRun&&!(restLeft>0&&restLeft<restSet))tWheelSet(restSet)},30);window.scrollTo(0,0);render()}
+  document.getElementById("timer").classList.toggle("hidden",v!=="entreno");document.getElementById("timer").classList.toggle("tmin",timerMin);document.body.classList.toggle("hastimerbar",v==="entreno");if(v==="entreno"){restoreWClock();setTimeout(()=>{positionTimer();if(!chronoMode&&!restRun&&!(restLeft>0&&restLeft<restSet))tWheelSet(restSet)},30)}window.scrollTo(0,0);render()}
 function render(){document.getElementById("topDate").textContent=new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"short"});
   if(curView==="inicio")renderInicio();if(curView==="entreno")renderEntreno();if(curView==="progreso")renderProgreso();if(curView==="coach")renderCoach();if(curView==="perfil")renderPerfil()}
 
@@ -808,12 +838,20 @@ function setsReps(se){let sets=0,reps=0;if(!se.entries)return{sets,reps};const _
 const SES_MILE=[1,5,10,15,25,50,100,150,200,300],STK_MILE=[3,7,14,21,30,50,75,100];
 
 /* INICIO */
+/* Frase del día (rota por día) con autor·obra y check "me ha calado". */
+function pickDailyQuote(){const mEl=document.getElementById("mantra");if(!mEl)return;
+  const cm=(S.customMantras||[]).map(m=>(typeof m==="string"?{t:m,a:"",o:""}:m));
+  const all=QUOTES.concat(cm);const q=all[new Date().getDate()%all.length]||all[0];window._todayQuote=q;
+  mEl.textContent="“"+q.t+"”";
+  const aEl=document.getElementById("mantraAttr");if(aEl)aEl.textContent=q.a?("— "+q.a+(q.o?" · "+q.o:"")):"";
+  const lb=document.getElementById("mantraLike");if(lb){const liked=!!(S.quotesLiked&&S.quotesLiked[q.t]);lb.className="mlike"+(liked?" on":"");lb.textContent=liked?"❤️ Te ha calado":"🤍 Marcar que me ha calado";
+    lb.onclick=()=>{S.quotesLiked=S.quotesLiked||{};if(S.quotesLiked[q.t]){delete S.quotesLiked[q.t]}else{S.quotesLiked[q.t]={a:q.a||"",o:q.o||"",date:nowLbl()};toast("Guardada en tus frases 💬")}persist();pickDailyQuote()}}}
 function renderInicio(){const st=computeStreak();
   sChip.textContent=st;sEmoji.textContent=streakEmoji(st);mChip.textContent=monthSessions();tChip.textContent=totalSessions();
   const tot=totalSessions();const un=SES_MILE.filter(m=>tot>=m);const nxt=SES_MILE.find(m=>tot<m);
   let bs=un.map(m=>`<div class="bmini">★<span class="bn">${m}</span></div>`).join("");if(nxt)bs+=`<div class="bmini lock">${nxt}</div>`;
   badgeStrip.innerHTML=bs;badgeStrip.onclick=()=>go("progreso");
-  const allM=MANTRAS.concat(S.customMantras||[]);mantra.textContent="“ "+allM[new Date().getDate()%allM.length]+" ”";
+  pickDailyQuote();
   {const rec=recToday();const trained=todayTrained();const ct=document.getElementById("coachToday");const foc=(rec&&S.coachFocus&&S.coachFocus.days)?S.coachFocus.days[rec]:"";const dd=dayById(rec);
    if(trained){const done=dayById(S.sessions[TODAY].dayId);ct.innerHTML=`<div class="card todaycard"><div class="tcd">✅ Hoy ya entrenaste <b>${done?done.name:""}</b></div><div class="tcobj"><span class="tcdot" style="background:${dd.dot}"></span>Siguiente: <b>${dd.name}</b></div></div>`}
    else if(dd){ct.innerHTML=`<div class="card todaycard"><div class="tcd"><span class="tcdot" style="background:${dd.dot}"></span>Hoy toca: <b>${dd.name}</b></div>${foc?`<div class="tcobj">🎯 ${foc}</div>`:`<div class="tcobj" style="color:var(--mut2)">${dd.tag}</div>`}${S.coachFocus&&S.coachFocus.week?`<div class="tcweek">${S.coachFocus.week}</div>`:""}</div>`}
@@ -991,15 +1029,24 @@ function openRestPick(id,i){const t=ensureToday();t.entries[id]=t.entries[id]||[
   const centered=()=>vals[Math.max(0,Math.min(vals.length-1,Math.round(wheel.scrollTop/IH)))];
   document.getElementById("restCancel").onclick=closeSheet;
   document.getElementById("restSave").onclick=()=>{const v=centered();const tt=ensureToday();tt.entries[id]=tt.entries[id]||[];tt.entries[id][i]=tt.entries[id][i]||["","",""];while(tt.entries[id][i].length<3)tt.entries[id][i].push("");tt.entries[id][i][2]=v||"";persist();closeSheet();renderEntreno()}}
-startWorkout.onclick=()=>{if(wStart){wElapsed+=Math.floor((Date.now()-wStart)/1000);wStart=null;clearInterval(wTimer)}else{wStart=Date.now();const _t=ensureToday();if(!_t.startAt){_t.startAt=Date.now();persist()}wTimer=setInterval(updWClock,1000)}updWClock()};
+startWorkout.onclick=()=>{const _t=ensureToday();if(wStart){wElapsed+=Math.floor((Date.now()-wStart)/1000);wStart=null;clearInterval(wTimer);_t.wRun=false;_t.wStartTs=0;_t.wAcc=wElapsed}else{wStart=Date.now();if(!_t.startAt)_t.startAt=Date.now();_t.wRun=true;_t.wStartTs=wStart;_t.wAcc=wElapsed;wTimer=setInterval(updWClock,1000)}persist();updWClock()};
 function curElapsed(){return wElapsed+(wStart?Math.floor((Date.now()-wStart)/1000):0)}
+/* Restaura el cronómetro de entreno tras cerrar/reabrir la app (sobrevive con el reloj real). */
+function restoreWClock(){if(wStart)return;const t=S.sessions[TODAY];if(!(t&&t.dayId===selDay&&t.status!=="done"))return;if(t.wRun&&t.wStartTs){wStart=t.wStartTs;wElapsed=t.wAcc||0;clearInterval(wTimer);wTimer=setInterval(updWClock,1000)}else if(t.wAcc&&!wElapsed){wElapsed=t.wAcc}updWClock()}
 function updWClock(){const s=curElapsed();const h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;const el=document.getElementById("wClock");if(el)el.textContent=h>0?(h+":"+pad(m)+":"+pad(ss)):(m+":"+pad(ss));const b=document.getElementById("startWorkout");if(b){b.textContent=wStart?"⏸ Pausar":(wElapsed>0?"▶ Reanudar":"▶ Empezar");b.classList.toggle("run",!!wStart)}}
-function doFinish(){if(wStart){wElapsed+=Math.floor((Date.now()-wStart)/1000);wStart=null;clearInterval(wTimer);updWClock()}const t=ensureToday();t.min=Math.max(1,Math.round(curElapsed()/60))||(selDay==="cardio"?60:75);persist();showSummary=true;renderEntreno();toast("✓ Resumen generado — revísalo abajo y pulsa Guardar");setTimeout(()=>{const r=document.getElementById("resumBox");if(r)r.scrollIntoView({block:"center"})},60)}
+function doFinish(){if(wStart){wElapsed+=Math.floor((Date.now()-wStart)/1000);wStart=null;clearInterval(wTimer);updWClock()}const t=ensureToday();t.min=Math.max(1,Math.round(curElapsed()/60))||(selDay==="cardio"?60:75);t.wRun=false;t.wStartTs=0;t.wAcc=0;persist();showSummary=true;renderEntreno();toast("✓ Resumen generado — revísalo abajo y pulsa Guardar");setTimeout(()=>{const r=document.getElementById("resumBox");if(r)r.scrollIntoView({block:"center"})},60)}
 function priorBest(exId){let mx=0;Object.keys(S.sessions).forEach(dt=>{if(dt===TODAY)return;const s=S.sessions[dt];if(!s.entries||!s.entries[exId])return;s.entries[exId].forEach(st=>{if(!st)return;const kg=parseFloat(st[0]);if(!isNaN(kg))mx=Math.max(mx,kg)})});return mx}
 function pushAch(id,text){S.achievements=S.achievements||[];if(S.achievements.some(a=>a.id===id))return;S.achievements.unshift({id,text,date:nowLbl()})}
 function awardAchievements(){const t=S.sessions[TODAY];if(!t||!t.entries)return;const _ex=sessionEx(t);if(!_ex.length)return;
   _ex.forEach(e=>{if(exType(e)==="cardio")return;const arr=t.entries[e.id]||[];let best=0;arr.forEach(st=>{if(!st)return;const kg=parseFloat(st[0]);if(!isNaN(kg)&&kg>best)best=kg});if(best>0){const pb=priorBest(e.id);if(pb>0&&best>pb)pushAch("pr_"+e.id+"_"+best,`🏅 Nuevo récord en ${e.n}: ${best} kg`)}})}
-function doSave(){try{const t=ensureToday();t.status="done";t.dayId=selDay;t.endAt=Date.now();t.min=t.min||Math.max(1,Math.round(curElapsed()/60))||(selDay==="cardio"?60:75);if(!t.startAt)t.startAt=t.endAt-((t.min||0)*60000);awardAchievements();persist();showSummary=false;wElapsed=0;wStart=null;toast("¡Entreno completado! "+streakEmoji(computeStreak())+" Racha: "+computeStreak());}catch(err){toast("Guardado (aviso: "+(err&&err.message||err)+")")}try{go("progreso")}catch(err){showSummary=false;try{renderEntreno()}catch(e){}}}
+function doSave(){try{const t=ensureToday();t.status="done";t.dayId=selDay;
+  /* La hora de FIN (salida) se fija SOLO la primera vez que se completa. Reabrir y volver a guardar edita el entreno sin tocar el horario ni la duración. */
+  if(!t.endAt){if(!t.startAt)t.startAt=Date.now()-((t.min||0)*60000);t.endAt=Date.now()}
+  /* La duración va SIEMPRE acorde al horario de entrada-salida. */
+  if(t.startAt&&t.endAt&&t.endAt>t.startAt)t.min=Math.max(1,Math.round((t.endAt-t.startAt)/60000));
+  else t.min=t.min||Math.max(1,Math.round(curElapsed()/60))||(selDay==="cardio"?60:75);
+  t.wRun=false;t.wStartTs=0;t.wAcc=0;
+  awardAchievements();persist();showSummary=false;wElapsed=0;wStart=null;toast("¡Entreno completado! "+streakEmoji(computeStreak())+" Racha: "+computeStreak());}catch(err){toast("Guardado (aviso: "+(err&&err.message||err)+")")}try{go("progreso")}catch(err){showSummary=false;try{renderEntreno()}catch(e){}}}
 // Binding robusto por delegación: sobrevive a re-renders y funciona en el webview de iOS. Se puede pulsar todas las veces.
 document.addEventListener("click",function(ev){const b=ev.target&&ev.target.closest?ev.target.closest("button"):null;if(!b)return;if(b.id==="finishBtn"){doFinish()}else if(b.id==="saveBtn"){doSave()}},false);
 function editWarmup(){const d=dayById(selDay);openSheet(`<h4>Calentamiento — ${d.name}</h4><div class="sub">Escribe el calentamiento de este día.</div><textarea id="shReason" class="rtext" placeholder="Ej: 10 min bici, movilidad…">${d.warmup||""}</textarea><button class="btn-blue" id="shSave" style="margin-bottom:8px">Guardar</button><button class="cancel" id="shCancel">Cancelar</button>`);const ta=document.getElementById("shReason");if('ontouchstart' in window||navigator.maxTouchPoints>0)setTimeout(()=>{try{ta.focus()}catch(e){}},120);document.getElementById("shCancel").onclick=closeSheet;document.getElementById("shSave").onclick=()=>{d.warmup=ta.value.trim();persist();closeSheet();renderEntreno()}}
@@ -1152,7 +1199,12 @@ function renderExNotes(){const box=document.getElementById("exNotesBox");if(!box
   if(!keys.length){box.innerHTML=`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Aquí se recopilan las notas que escribes dentro de cada ejercicio, agrupadas por día de rutina.</div>`;return}
   const order=S.routine.map(d=>d.id);keys.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
   box.innerHTML=keys.map(k=>{const g=byDay[k];return `<details class="acc dayacc"><summary><span class="tcdot" style="background:${g.dot}"></span>${g.name} <span class="cnt">${g.items.length}</span></summary><div class="body">${g.items.map(n=>`<div class="exnrow" style="border-left:3px solid ${g.dot}"><div class="exnhd"><b>${n.ex}</b><span>${new Date(n.dt+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}</span></div><div class="exntx">${n.txt}</div></div>`).join("")}</div></details>`}).join("")}
-function renderCoach(){renderFocus();renderGoals();renderCheckin();renderDiary();renderExNotes();
+function renderQuotesLiked(){const box=document.getElementById("quotesLikedBox");if(!box)return;const E=s=>(""+s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const ks=Object.keys(S.quotesLiked||{});
+  if(!ks.length){box.innerHTML='<div class="qempty">Cuando una frase te cale de verdad, márcala en Inicio y aparecerá aquí para releerla. 💬</div>';return}
+  box.innerHTML=ks.map((t,i)=>{const q=S.quotesLiked[t]||{};const attr=q.a?(q.a+(q.o?" · "+q.o:"")):"";return '<div class="qlike"><div class="qt">“'+E(t)+'”</div><div class="qa"><span>'+(attr?"— "+E(attr):"")+(q.date?" · "+E(q.date):"")+'</span><button class="qx" data-unlike="'+i+'" title="Quitar">✕</button></div></div>'}).join("");
+  box.querySelectorAll("[data-unlike]").forEach(b=>b.onclick=()=>{const k=Object.keys(S.quotesLiked||{})[+b.dataset.unlike];if(k)delete S.quotesLiked[k];persist();renderQuotesLiked();try{pickDailyQuote()}catch(e){}})}
+function renderCoach(){renderFocus();renderGoals();renderCheckin();renderDiary();renderExNotes();renderQuotesLiked();
   const tips=[];const st=computeStreak();const done=weekDone();const goal=+S.profile.meta||6;
   if(st>=3)tips.push(["okt",`${streakEmoji(st)} Racha de ${st} días. Estás construyendo el hábito — no la rompas.`]);
   if(st===0&&totalSessions()>0)tips.push(["warnt","Se cortó la racha. Tu regla: nunca falles dos días seguidos. Hoy vuelves."]);
@@ -1503,7 +1555,7 @@ wipeBtn.onclick=wipeData;
 /* REST TIMER */
 let restLeft=(S.settings&&S.settings.restDefault)||90,restSet=restLeft,restTimer=null,restRun=false,AC=null,restEnd=0;
 let chronoMode=false,chRun=false,chStart=0,chElapsed=0,chTimer=null;
-const TVALS=[];for(let _s=15;_s<=360;_s+=15)TVALS.push(_s);const TIH=56;
+const TVALS=[];for(let _s=360;_s>=15;_s-=15)TVALS.push(_s);const TIH=56;
 const tWheel=document.getElementById("tWheel");
 tWheel.innerHTML='<div class="hp"></div>'+TVALS.map(v=>`<div class="hi">${Math.floor(v/60)}:${pad(v%60)}</div>`).join("")+'<div class="hp"></div>';
 function tWheelIdx(){return Math.max(0,Math.min(TVALS.length-1,Math.round(tWheel.scrollTop/TIH)))}
@@ -1531,8 +1583,8 @@ document.getElementById("timer").classList.toggle("tmin",timerMin);
   grab.addEventListener("touchstart",start,{passive:true});grab.addEventListener("mousedown",start)})();
 let wd;tWheel.addEventListener("scroll",()=>{paintTWheel();clearTimeout(wd);wd=setTimeout(()=>{if(!restRun&&!chronoMode){restSet=readWheel();restLeft=restSet;refreshTimerFace()}},110)});
 function updRest(){const m=Math.floor(restLeft/60),s=restLeft%60;document.getElementById("tDisp").textContent=m+":"+pad(s);refreshTimerFace()}
-function playBeep(type,vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
-  const V=Math.max(.05,Math.min(1,vol==null?.8:vol));const now=AC.currentTime;
+function playBeep(type,vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  const doPlay=()=>{const V=Math.max(.05,Math.min(1,vol==null?.8:vol));const now=AC.currentTime+.06;
   const tone=(f,st2,dur,wave,pk)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=wave;o.frequency.value=f;o.connect(g);g.connect(AC.destination);const t0=now+st2;g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(Math.max(.002,pk),t0+.012);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.start(t0);o.stop(t0+dur+.03)};
   if(type==='campana'){for(let i=0;i<3;i++){tone(1319,i*.62,.6,'sine',V*.9);tone(1976,i*.62,.6,'sine',V*.4)}}
   else if(type==='triple'){for(let i=0;i<6;i++)tone(1046,i*.2,.15,'triangle',V*.9)}
@@ -1540,7 +1592,8 @@ function playBeep(type,vol){try{AC=AC||new (window.AudioContext||window.webkitAu
   else if(type==='ascendente'){const s=[784,988,1319,1568];for(let r=0;r<3;r++)s.forEach((f,i)=>tone(f,r*.62+i*.14,.15,'square',V*.85))}
   else if(type==='digital'){const s=[1568,1046,1568,2093,1568,1046];for(let r=0;r<2;r++)s.forEach((f,i)=>tone(f,r*.78+i*.12,.1,'square',V*.8))}
   else if(type==='sirena'){for(let i=0;i<6;i++)tone(i%2?660:880,i*.3,.32,'sawtooth',V*.85)}
-  else{for(let i=0;i<9;i++)tone(i%2?1245:1047,i*.2,.16,'square',V*.9)}
+  else{for(let i=0;i<9;i++)tone(i%2?1245:1047,i*.2,.16,'square',V*.9)}};
+  if(AC.state==="suspended"){AC.resume().then(doPlay).catch(()=>{try{doPlay()}catch(_){}})}else{doPlay()}
 }catch(e){}}
 function beep(){playBeep((S.settings&&S.settings.soundType)||'cortante',(S.settings&&S.settings.soundVol)||.8)}
 tStart.onclick=()=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume()}catch(e){}
@@ -1571,7 +1624,7 @@ function notifyRest(){if(!S.settings.notify)return;try{if("Notification" in wind
 tReset.onclick=()=>{if(chronoMode){chRun=false;clearInterval(chTimer);releaseWake();chElapsed=0;document.getElementById("timer").classList.remove("run");document.getElementById("tStart").textContent="Iniciar";document.getElementById("tDisp").textContent="0:00";refreshTimerFace();return}stopRest();restLeft=restSet;updRest();setTimeout(()=>tWheelSet(restSet),10)};
 function stopRest(){restRun=false;document.getElementById("timer").classList.remove("run");tStart.textContent="Iniciar";clearInterval(restTimer);releaseWake();refreshTimerFace()}
 // iOS congela los timers en segundo plano: al volver, recalcula con el reloj real (no se "pausa").
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&restRun){restLeft=Math.max(0,Math.round((restEnd-Date.now())/1000));if(restLeft<=0)finishRest();else{updRest();acquireWake()}}if(!document.hidden&&chRun)tickChrono();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&AC&&AC.state==="suspended"){try{AC.resume()}catch(e){}}if(!document.hidden&&restRun){restLeft=Math.max(0,Math.round((restEnd-Date.now())/1000));if(restLeft<=0)finishRest();else{updRest();acquireWake()}}if(!document.hidden&&chRun)tickChrono();
   if(!document.hidden&&!restRun&&!chRun){try{const _n=new Date();const _t=_n.getFullYear()+"-"+pad(_n.getMonth()+1)+"-"+pad(_n.getDate());if(_t!==TODAY)location.reload()}catch(e){}}});
 updRest();
 
