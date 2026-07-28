@@ -39,7 +39,7 @@ select{-webkit-appearance:none;appearance:none}
 ::-webkit-scrollbar{display:none}
 
 .top{padding:calc(env(safe-area-inset-top) + 14px) 18px 8px;display:flex;align-items:center;justify-content:space-between}
-.top .brand{font-size:13px;font-weight:800;letter-spacing:2.5px;color:var(--blue);text-transform:uppercase}
+.top .brand{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:800;letter-spacing:2.5px;color:var(--blue);text-transform:uppercase}.top .blogo{width:30px;height:30px;border-radius:8px;flex:none;box-shadow:0 2px 7px rgba(37,64,166,.4)}
 .top .brand b{color:var(--tx)}
 .top .day{font-size:12px;color:var(--mut);font-weight:600;text-transform:capitalize}
 
@@ -538,7 +538,7 @@ body.hastimerbar{padding-bottom:166px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">MI&nbsp;<b>ENTRENO</b></div><div class="day" id="topDate"></div></div>
+  <div class="top"><div class="brand"><svg class="blogo" viewBox="0 0 96 96"><defs><linearGradient id="lgGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCEDA6"/><stop offset=".22" stop-color="#F2D06B"/><stop offset=".5" stop-color="#D3A33B"/><stop offset=".78" stop-color="#9A6E1B"/><stop offset="1" stop-color="#C89633"/></linearGradient><linearGradient id="lgTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D6"/><stop offset="1" stop-color="#FFF6D6" stop-opacity="0"/></linearGradient><linearGradient id="lgSil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBFDFF"/><stop offset=".3" stop-color="#D3DBE6"/><stop offset=".55" stop-color="#98A4B6"/><stop offset=".8" stop-color="#697585"/><stop offset="1" stop-color="#B4BDCB"/></linearGradient><radialGradient id="lgBg" cx=".5" cy=".4" r=".82"><stop offset="0" stop-color="#4A64E6"/><stop offset="1" stop-color="#213AA6"/></radialGradient><pattern id="lgKn" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><path d="M0 3.2 L3.2 0" stroke="#fff" stroke-width=".55" opacity=".45"/><path d="M0 0 L3.2 3.2" stroke="#3a414d" stroke-width=".55" opacity=".5"/></pattern></defs><rect width="96" height="96" rx="22" fill="url(#lgBg)"/><rect x="11" y="31" width="11" height="34" rx="5.5" fill="url(#lgGold)" stroke="#6a4b11" stroke-width="1.2"/><rect x="13" y="33.5" width="7" height="6" rx="3" fill="url(#lgTop)"/><rect x="74" y="31" width="11" height="34" rx="5.5" fill="url(#lgGold)" stroke="#6a4b11" stroke-width="1.2"/><rect x="76" y="33.5" width="7" height="6" rx="3" fill="url(#lgTop)"/><rect x="20" y="22" width="13" height="52" rx="6.5" fill="url(#lgGold)" stroke="#6a4b11" stroke-width="1.3"/><rect x="22.5" y="24.5" width="8" height="7" rx="3.5" fill="url(#lgTop)"/><rect x="63" y="22" width="13" height="52" rx="6.5" fill="url(#lgGold)" stroke="#6a4b11" stroke-width="1.3"/><rect x="65.5" y="24.5" width="8" height="7" rx="3.5" fill="url(#lgTop)"/><rect x="38" y="42.5" width="20" height="11" fill="url(#lgSil)" stroke="#5b6472" stroke-width=".6"/><rect x="38" y="42.5" width="20" height="11" fill="url(#lgKn)"/><rect x="41" y="44" width="14" height="1.9" fill="#fff" opacity=".5"/><rect x="33" y="40" width="5" height="16" rx="2.4" fill="url(#lgSil)" stroke="#5b6472" stroke-width=".6"/><rect x="58" y="40" width="5" height="16" rx="2.4" fill="url(#lgSil)" stroke="#5b6472" stroke-width=".6"/></svg><span>MI&nbsp;<b>ENTRENO</b></span></div><div class="day" id="topDate"></div></div>
 
   <div class="view on" id="v-inicio">
     <div id="demoBar"></div>
@@ -703,7 +703,7 @@ body.hastimerbar{padding-bottom:166px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v77</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v78</div>
   </div>
 </div>
 
