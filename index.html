@@ -333,7 +333,7 @@ svg.chart{width:100%;height:auto;display:block}
 .field input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px;color:var(--tx)}
 .note-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;font-size:13.5px;position:relative;box-shadow:var(--sh)}
 .note-item .del{position:absolute;top:8px;right:10px;color:var(--mut2);font-size:16px}
-.note-item .edn{position:absolute;top:8px;right:36px;color:var(--blue);font-size:14px;background:none}
+.note-item .edn{position:absolute;top:5px;right:34px;color:var(--blue);font-size:20px;background:none;padding:2px 4px;line-height:1}
 .note-item .ntx{padding-right:52px;white-space:pre-wrap}
 .coachnote{background:linear-gradient(120deg,#eef2fc,#f5f8fd);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px;font-size:13.5px}
 .coachnote .cd{font-size:10.5px;color:var(--blue);font-weight:700;margin-bottom:5px}
@@ -571,6 +571,7 @@ body.hastimerbar{padding-bottom:166px}
     </div>
     <div class="startbar" id="startBar"><button class="sb" id="startWorkout">▶ Empezar</button><div class="clock" id="wClock">0:00</div></div>
     <div id="warmBox"></div>
+    <div id="dayNoteBox"></div>
     <div id="entrenoBody"></div>
     <div class="botzone">
       <div id="lockZone"></div>
@@ -615,7 +616,7 @@ body.hastimerbar{padding-bottom:166px}
     <details class="acc"><summary>Gasto estimado <span class="cnt"><span id="kcalWk">0</span> kcal</span></summary><div class="body"><div id="kcalNote" style="font-size:12px;color:var(--mut)"></div></div></details>
     <details class="acc"><summary>Racha</summary><div class="body"><div class="badges" id="badgesStreak"></div></div></details>
     <details class="acc"><summary>Sesiones</summary><div class="body"><div class="badges" id="badgesSes"></div></div></details>
-    <details class="acc" open><summary>Logros · objetivos <span class="cnt" id="achCnt"></span></summary><div class="body"><div id="badgesAch"></div></div></details>
+    <details class="acc"><summary>Logros · objetivos <span class="cnt" id="achCnt"></span></summary><div class="body"><div id="badgesAch"></div></div></details>
   </div>
 
   <div class="view" id="v-coach">
@@ -703,7 +704,7 @@ body.hastimerbar{padding-bottom:166px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v78</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v79</div>
   </div>
 </div>
 
@@ -929,13 +930,13 @@ function renderInicio(){const st=computeStreak();
   badgeStrip.innerHTML=bs;badgeStrip.onclick=()=>go("progreso");
   pickDailyQuote();
   {const rec=recToday();const trained=todayTrained();const ct=document.getElementById("coachToday");const foc=(rec&&S.coachFocus&&S.coachFocus.days)?S.coachFocus.days[rec]:"";const dd=dayById(rec);
-   if(trained){const done=dayById(S.sessions[TODAY].dayId);ct.innerHTML=`<div class="card todaycard"><div class="tcd">✅ Hoy ya entrenaste <b>${done?done.name:""}</b></div><div class="tcobj"><span class="tcdot" style="background:${dd.dot}"></span>Siguiente: <b>${dd.name}</b></div></div>`}
+   if(trained){const done=dayById(S.sessions[TODAY].dayId);ct.innerHTML=`<div class="card todaycard"><div class="tcd">✅ Hoy ya entrenaste <b>${done?done.name:""}</b></div><div class="tcobj"><span class="tcdot" style="background:${dd.dot}"></span>Mañana toca: <b>${dd.name}</b></div></div>`}
    else if(dd){ct.innerHTML=`<div class="card todaycard"><div class="tcd"><span class="tcdot" style="background:${dd.dot}"></span>Hoy toca: <b>${dd.name}</b></div>${foc?`<div class="tcobj">🎯 ${foc}</div>`:`<div class="tcobj" style="color:var(--mut2)">${dd.tag}</div>`}${S.coachFocus&&S.coachFocus.week?`<div class="tcweek">${S.coachFocus.week}</div>`:""}</div>`}
    else ct.innerHTML=""}
   demoBar.innerHTML=S.demo?`<div class="demobar"><span>🧪 <b>Modo prueba</b> (datos de ejemplo). Pulsa lo que quieras para probar; cuando vayas a usarla de verdad, empieza de cero.</span><button id="demoClear">Empezar de cero</button></div>`:"";
   if(S.demo)demoClear.onclick=wipeData;
   renderHomeCal();
-  const rec=recToday();hoyToca.innerHTML=todayTrained()?`Hoy: <b>entrenado ✅</b>`:(rec?`Hoy toca: <b>${dayById(rec).name}</b>`:`Hoy: <b>Descanso</b>`);
+  const rec=recToday();hoyToca.innerHTML=todayTrained()?`Hoy: <b>entrenado ✅</b>${rec?` · Mañana toca: <b>${dayById(rec).name}</b>`:""}`:(rec?`Hoy toca: <b>${dayById(rec).name}</b>`:`Hoy: <b>Descanso</b>`);
   syncSel("sel");startHome.textContent=selDay==="descanso"?"Descansar hoy 🧘":"Empezar entreno →"}
 function markHtml(se){if(!se)return{cls:"",st:"",bot:""};if(se.status==="done"){const dd=dayById(se.dayId);const c=dd?dd.dot:'#3A5BD6';const nm=dd?dd.name:'';const hz=se.startAt?fmtClock(se.startAt):'';return{cls:" done",st:`style="background:${hexA(c,.12)};color:${c}"`,bot:`<span class="cnm" style="color:${c}">${nm}</span>${hz?`<span class="cnh" style="color:${c}">${hz}</span>`:''}`}}
   if(se.status==="fail")return{cls:"",st:`style="background:#fbe8e6;color:var(--bad)"`,bot:`<span class="cnm" style="color:var(--bad)">Falta</span>`};
@@ -1016,15 +1017,20 @@ function setTarget(e,i,prevArr){const ty=exType(e);const pv=prevArr&&prevArr[i];
   if(pv){const kg=numKg(pv[0]),rp=parseInt(pv[1]);
     if(kg!=null&&!isNaN(rp)){if(hi&&rp>=hi)return{main:fmtKg(kg+2.5)+'×'+(lo||rp),tag:'+PESO'};return{main:(""+pv[0])+'×'+(rp+1),tag:'+1 REP'}}}
   return null}
+function renderDayNote(locked,isToday){const box=document.getElementById("dayNoteBox");if(!box)return;const nt=(isToday&&S.sessions[TODAY]&&S.sessions[TODAY].dayNote)||"";const enc=s=>(""+s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  if(locked){box.innerHTML=nt?`<div class="warm daynote-ro">📝 <b>Nota del día:</b> ${enc(nt).replace(/\n/g,'<br>')}</div>`:"";return}
+  box.innerHTML=`<details class="acc daynote"${nt?" open":""}><summary>📝 Nota del día${nt?' <span class="cnt">✓</span>':''}</summary><div class="body"><textarea id="dayNoteTa" class="exnote" rows="2" placeholder="Sensaciones generales, energía, molestias, técnica… lo que quieras recordar de hoy.">${enc(nt)}</textarea></div></details>`;
+  const ta=document.getElementById("dayNoteTa");if(ta){const grow=()=>{ta.style.height="auto";ta.style.height=Math.max(52,ta.scrollHeight)+"px"};grow();ta.addEventListener("input",()=>{const t=ensureToday();t.dayNote=ta.value;grow();persist()})}}
 function renderEntreno(){const _t=S.sessions[TODAY];
   if(_t&&(_t.status==="done"||(_t.status==="draft"&&((_t.entries&&Object.keys(_t.entries).length)||(_t.exOverride&&_t.exOverride.length))))&&dayById(_t.dayId))selDay=_t.dayId;
   else if(selDay==="descanso"||!dayById(selDay))selDay=defaultDay()||S.routine[0].id;
-  syncSel("e");const rec=recToday();hoyToca2.innerHTML=todayTrained()?`Hoy: <b>entrenado ✅</b> · Siguiente: <b>${dayById(rec).name}</b>`:(rec?`Hoy toca: <b>${dayById(rec).name}</b>`:`Hoy: <b>Descanso</b>`);
+  syncSel("e");const rec=recToday();hoyToca2.innerHTML=todayTrained()?`Hoy: <b>entrenado ✅</b> · Mañana toca: <b>${dayById(rec).name}</b>`:(rec?`Hoy toca: <b>${dayById(rec).name}</b>`:`Hoy: <b>Descanso</b>`);
   const d=dayById(selDay);const prev=lastSession(selDay);
   const isToday=!!(S.sessions[TODAY]&&S.sessions[TODAY].dayId===selDay);
   const cur=isToday?S.sessions[TODAY]:{entries:{},exnotes:{}};
   const locked=!!(isToday&&S.sessions[TODAY].status==="done");window._entLocked=locked;
   document.getElementById("warmBox").innerHTML=locked?`<div class="warm done">✅ <b>Entreno completado</b>${cur.min?` · ${fmtHM(cur.min)}`:""} — registrado en Progreso</div>`:`<div class="warm"><button class="warmedit" id="warmEdit">✎ editar</button>🔥 <b>Calentamiento:</b> ${d.warmup||'<span style="color:var(--mut2)">(añadir)</span>'}</div>`;
+  renderDayNote(locked,isToday);
   let h="";
   const _elist=entDayEx();
   if(!locked){if(!window._actSet||!window._actSet.exId||!_elist.some(x=>x.id===window._actSet.exId)){const _f0=_elist[0];window._actSet=_f0?{exId:_f0.id,i:0}:null}}
@@ -1171,6 +1177,7 @@ function renderResumen(){const d=dayById(selDay);const t=S.sessions[TODAY]||{ent
     ${lines||'<div style="font-size:12px;color:var(--mut2)">Apunta tus series arriba para ver el detalle.</div>'}
     ${sr.reps>0?`<div class="rline" style="margin-top:6px"><span style="font-weight:800">Total</span><b>${sr.reps} reps</b></div>`:""}
     ${mgLines?`<div style="font-size:11px;font-weight:800;color:var(--blue2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 2px">Series por grupo muscular</div>${mgLines}`:""}
+    ${(t.dayNote&&t.dayNote.trim())?`<div style="font-size:11px;font-weight:800;color:var(--blue2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 2px">📝 Nota del día</div><div style="font-size:12.5px;color:var(--tx);white-space:pre-wrap;background:var(--card2);border-radius:10px;padding:9px 11px">${(""+t.dayNote).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`:""}
     <div style="font-size:11px;color:var(--mut2);margin-top:8px">Puedes seguir editando arriba y pulsar Recalcular. Luego, Guardar.</div></div>`}
 
 /* PROGRESO */
@@ -1219,7 +1226,8 @@ function dayDetailHtml(ds){const se=S.sessions[ds];const exd=extraDayHtml(ds);if
     const ddCards=cs.has
       ?`<div class="rst"><div class="n">${fmtHM(mn)}</div><div class="l">Tiempo total</div></div><div class="rst"><div class="n">${c}</div><div class="l">kcal</div></div><div class="rst"><div class="n">${cs.tramos}</div><div class="l">Tramos${cs.names.length===1?' · '+cs.names[0]:''}</div></div><div class="rst"><div class="n">${cs.niv}</div><div class="l">Intensidad (nivel)</div></div><div class="rst"><div class="n">${sr.sets}</div><div class="l">Series hechas</div></div><div class="rst"><div class="n">${ar?fmtHM(ar/60):"—"}</div><div class="l">Descanso medio</div></div>`
       :`<div class="rst"><div class="n">${fmtHM(mn)}</div><div class="l">Tiempo total</div></div><div class="rst"><div class="n">${c}</div><div class="l">kcal</div></div><div class="rst"><div class="n">${ar?fmtHM(ar/60):"—"}</div><div class="l">Descanso medio</div></div><div class="rst"><div class="n">${sr.sets}</div><div class="l">Series totales</div></div>`;
-    return `<div class="daydetail"><h4><i style="background:${day.dot}"></i>${day.name} · ${new Date(ds+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}${hz?` · <span style="color:var(--blue2);font-weight:700">🕒 ${hz}</span>`:""}</h4><div class="rgrid">${ddCards}</div>${exl}${sr.reps>0?`<div class="rline" style="margin-top:4px"><span style="font-weight:800">Total reps</span><b>${sr.reps}</b></div>`:""}${exd}</div>`}
+    const dnH=(se.dayNote&&se.dayNote.trim())?`<div style="font-size:11px;font-weight:800;color:var(--blue2);margin:8px 0 3px">📝 Nota del día</div><div style="font-size:12.5px;color:var(--tx);white-space:pre-wrap;background:var(--card2);border-radius:10px;padding:8px 10px">${(""+se.dayNote).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`:"";
+    return `<div class="daydetail"><h4><i style="background:${day.dot}"></i>${day.name} · ${new Date(ds+"T12:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"})}${hz?` · <span style="color:var(--blue2);font-weight:700">🕒 ${hz}</span>`:""}</h4><div class="rgrid">${ddCards}</div>${exl}${sr.reps>0?`<div class="rline" style="margin-top:4px"><span style="font-weight:800">Total reps</span><b>${sr.reps}</b></div>`:""}${dnH}${exd}</div>`}
   if(se){const lbl=se.status==="fail"?"Falta":se.status==="jfail"?"Falta justificada":se.status==="off"?"Descanso / no fui":"";
     return `<div class="daydetail"><h4>${new Date(ds+"T12:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"short"})}</h4><div style="font-size:13px;color:var(--mut)">${lbl}${se.reason?' · '+se.reason:''}</div>${exd}</div>`}
   return `<div class="daydetail"><h4>${new Date(ds+"T12:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"short"})}</h4>${exd}</div>`}
@@ -1405,7 +1413,7 @@ function renderDiary(){const box=document.getElementById("diaryBox");
   if(!S.notes.length){box.innerHTML=`<div style="font-size:12.5px;color:var(--mut2);padding:6px 2px">Tu diario está vacío. Apunta sensaciones, molestias, dudas o feedback para el coach.</div>`;return}
   const groups=[],idx={};
   S.notes.forEach((n,i)=>{const o=typeof n==="string"?{date:"",txt:n}:n;const key=o.date||"Sin fecha";if(idx[key]===undefined){idx[key]=groups.length;groups.push({date:key,items:[]})}groups[idx[key]].items.push({txt:o.txt,i})});
-  box.innerHTML=groups.map((g,gi)=>`<details class="acc dayacc"${gi===0?" open":""}><summary>📅 ${g.date} <span class="cnt">${g.items.length} nota${g.items.length>1?"s":""}</span></summary><div class="body">${g.items.map(it=>`<div class="note-item"><button class="del" data-deln="${it.i}">✕</button><button class="edn" data-editn="${it.i}">✎</button><div class="ntx">${it.txt}</div></div>`).join("")}</div></details>`).join("");
+  box.innerHTML=groups.map((g,gi)=>`<details class="acc dayacc"><summary>📅 ${g.date} <span class="cnt">${g.items.length} nota${g.items.length>1?"s":""}</span></summary><div class="body">${g.items.map(it=>`<div class="note-item"><button class="del" data-deln="${it.i}">✕</button><button class="edn" data-editn="${it.i}">✎</button><div class="ntx">${it.txt}</div></div>`).join("")}</div></details>`).join("");
   document.querySelectorAll("#diaryBox [data-deln]").forEach(b=>b.onclick=()=>{S.notes.splice(+b.dataset.deln,1);persist();renderDiary()});
   document.querySelectorAll("#diaryBox [data-editn]").forEach(b=>b.onclick=()=>editDiary(+b.dataset.editn))}
 function editDiary(i){const n=S.notes[i];if(n===undefined)return;const cur=typeof n==="string"?n:((n&&n.txt)||"");
@@ -1700,7 +1708,18 @@ document.getElementById("timer").classList.toggle("tmin",timerMin);
     if(!moved){minimizeTimer(!timerMin);return}
     const base=timerMin?peek():0;minimizeTimer((base+dy)>peek()/2)}
   grab.addEventListener("touchstart",start,{passive:true});grab.addEventListener("mousedown",start)})();
-let wd;tWheel.addEventListener("scroll",()=>{paintTWheel();clearTimeout(wd);wd=setTimeout(()=>{if(!restRun&&!chronoMode){restSet=readWheel();restLeft=restSet;refreshTimerFace()}},110)});
+let wd,_twScrollAt=0;tWheel.addEventListener("scroll",()=>{_twScrollAt=Date.now();paintTWheel();clearTimeout(wd);wd=setTimeout(()=>{if(!restRun&&!chronoMode){restSet=readWheel();restLeft=restSet;refreshTimerFace()}},110)});
+/* Tocar el tiempo abre una rueda tipo hoja (fiable) para elegir el descanso, igual que en las series. */
+function openTimerPick(){if(chronoMode){toast("Estás en modo cronómetro");return}if(restRun){toast("Descanso en marcha — párralo para cambiarlo");return}if(Date.now()-_twScrollAt<350)return;const cur=restSet||90;const vals=[];for(let s=15;s<=600;s+=15)vals.push(s);let ci=vals.indexOf(cur);if(ci<0)ci=vals.reduce((b,v,k)=>Math.abs(v-cur)<Math.abs(vals[b]-cur)?k:b,0);
+  openSheet(`<h4>Tiempo de descanso</h4><div class="sub">Desliza para elegir (min:seg).</div><div class="rwheelwrap"><div class="rwheelband"></div><div class="rwheel" id="tPickWheel"><div class="rwpad"></div>${vals.map(v=>`<div class="rwitem" data-v="${v}">${fmtRest(v)}</div>`).join("")}<div class="rwpad"></div></div></div><button class="btn-blue" id="tPickSave" style="margin-bottom:8px">Usar este tiempo</button><button class="cancel" id="tPickCancel">Cancelar</button>`);
+  const wheel=document.getElementById("tPickWheel");const IH=40;
+  const paint=()=>{const idx=Math.max(0,Math.min(vals.length-1,Math.round(wheel.scrollTop/IH)));wheel.querySelectorAll(".rwitem").forEach((el,k)=>el.classList.toggle("on",k===idx))};
+  setTimeout(()=>{wheel.scrollTop=ci*IH;paint()},30);
+  wheel.addEventListener("scroll",()=>{clearTimeout(wheel._t);wheel._t=setTimeout(paint,50)});
+  const centered=()=>vals[Math.max(0,Math.min(vals.length-1,Math.round(wheel.scrollTop/IH)))];
+  document.getElementById("tPickCancel").onclick=closeSheet;
+  document.getElementById("tPickSave").onclick=()=>{const v=centered()||90;restSet=v;restLeft=v;updRest();try{tWheelSet(v)}catch(_){}refreshTimerFace();closeSheet();toast("Descanso: "+fmtRest(v))}}
+try{document.querySelector(".ttime").addEventListener("click",openTimerPick)}catch(e){}
 function updRest(){const m=Math.floor(restLeft/60),s=restLeft%60;document.getElementById("tDisp").textContent=m+":"+pad(s);refreshTimerFace()}
 function playBeep(type,vol){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
   const doPlay=()=>{const V=Math.max(.05,Math.min(1,vol==null?.8:vol));const now=AC.currentTime+.06;
@@ -1741,7 +1760,7 @@ function finishRest(){stopRest();const t=ensureToday();if(!window._entLocked)t.r
   const as=window._actSet;
   if(as&&as.exId&&!window._entLocked){t.entries[as.exId]=t.entries[as.exId]||[];t.entries[as.exId][as.i]=t.entries[as.exId][as.i]||["","",""];while(t.entries[as.exId][as.i].length<3)t.entries[as.exId][as.i].push("");t.entries[as.exId][as.i][2]=restSet;
     const list=entDayEx();const exIdx=list.findIndex(x=>x.id===as.exId);if(exIdx>=0){const ex=list[exIdx];if(as.i+1<ex.s)window._actSet={exId:as.exId,i:as.i+1};else if(exIdx+1<list.length)window._actSet={exId:list[exIdx+1].id,i:0}}}
-  persist();restLeft=restSet;if(S.settings.sound){try{beep()}catch(e){}}notifyRest();toast("¡Descanso terminado! 💪 Serie apuntada");updRest();
+  persist();restLeft=restSet;if(S.settings.sound){try{beep()}catch(e){}}if(navigator.vibrate&&S.settings.vibrate!==false){try{navigator.vibrate([140,70,140])}catch(e){}}notifyRest();toast("¡Descanso terminado! 💪 Serie apuntada");updRest();
   if(curView==="entreno"&&!window._entLocked){try{renderEntreno()}catch(e){}}}
 let _wakeLock=null;
 async function acquireWake(){if(S.settings.keepAwake===false)return;try{if("wakeLock" in navigator){_wakeLock=await navigator.wakeLock.request("screen")}}catch(e){}}
