@@ -174,6 +174,7 @@ select{-webkit-appearance:none;appearance:none}
 .eset{display:grid;grid-template-columns:52px 1fr 46px 54px;gap:9px;align-items:center;padding:6px 3px;border-top:1px solid var(--line)}
 .eset:first-of-type{border-top:none}
 .eset .sl{font-size:11px;font-weight:800;color:var(--mut2);text-align:center}
+.eset .sl .stime{display:block;margin-top:2px;font-size:9px;font-weight:800;color:var(--blue);letter-spacing:-.2px}
 .eset .inp{min-width:0;display:flex;align-items:center;justify-content:center;gap:8px}
 .eset .inp input{width:100%;max-width:66px;min-width:0;background:var(--card2);border:1.5px solid var(--line);border-radius:9px;padding:10px 4px;font-size:15px;text-align:center;font-weight:700;color:var(--tx)}
 .eset .inp input:focus{outline:none;border-color:var(--blue);background:#fff}
@@ -704,7 +705,7 @@ body.hastimerbar{padding-bottom:166px}
       <button class="btn-gray" id="demoBtn" style="margin-bottom:8px">🧪 Cargar 2 semanas de ejemplo</button>
       <button class="btn-gray" id="wipeBtn" style="color:var(--bad)">🗑 Empezar de cero (borrar todo)</button>
     </div></details>
-    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v79</div>
+    <div style="font-size:10px;color:var(--mut2);text-align:center;margin-top:14px">Mi Entreno · v80</div>
   </div>
 </div>
 
@@ -1031,14 +1032,14 @@ function renderEntreno(){const _t=S.sessions[TODAY];
   const locked=!!(isToday&&S.sessions[TODAY].status==="done");window._entLocked=locked;
   document.getElementById("warmBox").innerHTML=locked?`<div class="warm done">✅ <b>Entreno completado</b>${cur.min?` · ${fmtHM(cur.min)}`:""} — registrado en Progreso</div>`:`<div class="warm"><button class="warmedit" id="warmEdit">✎ editar</button>🔥 <b>Calentamiento:</b> ${d.warmup||'<span style="color:var(--mut2)">(añadir)</span>'}</div>`;
   renderDayNote(locked,isToday);
-  let h="";
+  let h='<datalist id="exbanklist">'+EXBANK.map(x=>'<option value="'+x.n.replace(/"/g,'&quot;')+'">').join('')+'</datalist>';
   const _elist=entDayEx();
-  if(!locked){if(!window._actSet||!window._actSet.exId||!_elist.some(x=>x.id===window._actSet.exId)){const _f0=_elist[0];window._actSet=_f0?{exId:_f0.id,i:0}:null}}
+  if(!locked){if(!window._actSet||!window._actSet.exId||!_elist.some(x=>x.id===window._actSet.exId)){const _f0=_elist[0];window._actSet=_f0?{exId:_f0.id,i:0}:null}if(!window._chronoTgt)window._chronoTgt='set';}
   window._stagList=detectStag();
   _elist.forEach((e,ei)=>{const ed=!locked&&editSet.has(e.id);const card=cur.entries[e.id]||[];const ty=exType(e);const _next=_elist[ei+1];const _prev=_elist[ei-1];const _biStart=!!(e.bi&&_next);const _biEnd=!!(_prev&&_prev.bi);const sch=exScheme(e);const prevArr=prevSetsOf(prev,e.id);const hasLast=!!(prevArr&&prevArr.some(x=>x&&(x[0]||x[1])));const stag=window._stagList.includes(e.n);
     h+=`<div class="ex${locked?' locked':''}${_biStart?' bistart':''}${_biEnd?' biend':''}" data-exid="${e.id}" style="border:2px solid ${mgColor(e)}">${_biEnd?`<div class="binote up">🔁 Biserie con "${_prev.n}"</div>`:""}<div class="eh"><div class="en">${e.n}</div>${locked?"":`<button class="dots" data-ed="${e.id}">⋮</button>`}</div>`;
     h+=`<div class="badges"><span class="bdg${sch.coach?' coach':''}">${sch.coach?'🧠 ':''}${sch.txt}</span>${e.rir!=="—"?`<span class="bdg rir">RIR ${e.rir}</span>`:""}<span class="bdg tag" style="background:${mgColor(e)}">${mgOf(e)}</span>${_biStart?`<span class="bdg bi">🔁 Biserie</span>`:""}</div>`;
-    if(ed)h+=`<div class="edbox"><div class="f"><label>Nombre</label><input data-ef="n" data-e="${e.id}" value="${e.n.replace(/"/g,'&quot;')}"></div><div class="f"><label>Grupo</label><select data-ef="mg" data-e="${e.id}">${MG_LIST.map(g=>`<option${mgOf(e)===g?' selected':''}>${g}</option>`).join("")}</select></div><div class="f"><label>Reps</label><input data-ef="r" data-e="${e.id}" value="${e.r}"></div><div class="f"><label>RIR</label><input data-ef="rir" data-e="${e.id}" value="${e.rir}"></div><div class="f"><label>Tipo</label><select data-ef="type" data-e="${e.id}"><option value="peso"${ty==='peso'?' selected':''}>Peso (kg · reps)</option><option value="cardio"${ty==='cardio'?' selected':''}>Cardio (intensidad · tiempo)</option><option value="reps"${ty==='reps'?' selected':''}>Solo reps</option></select></div><div class="draghelp">✋ Mantén pulsada la tarjeta (fuera de los campos) para arrastrarla y cambiar el orden.</div><button class="bibtn${e.bi?' on':''}" data-bitog="${e.id}">🔁 Biserie con el siguiente${e.bi?' ✓':''}</button><button class="del" data-delx="${e.id}">Eliminar ejercicio</button></div>`;
+    if(ed)h+=`<div class="edbox"><div class="f"><label>Nombre</label><input list="exbanklist" data-ef="n" data-e="${e.id}" value="${e.n.replace(/"/g,'&quot;')}"></div><div class="f"><label>Grupo</label><select data-ef="mg" data-e="${e.id}">${MG_LIST.map(g=>`<option${mgOf(e)===g?' selected':''}>${g}</option>`).join("")}</select></div><div class="f"><label>Reps</label><input data-ef="r" data-e="${e.id}" value="${e.r}"></div><div class="f"><label>RIR</label><input data-ef="rir" data-e="${e.id}" value="${e.rir}"></div><div class="f"><label>Tipo</label><select data-ef="type" data-e="${e.id}"><option value="peso"${ty==='peso'?' selected':''}>Peso (kg · reps)</option><option value="cardio"${ty==='cardio'?' selected':''}>Cardio (intensidad · tiempo)</option><option value="reps"${ty==='reps'?' selected':''}>Solo reps</option></select></div><div class="draghelp">✋ Mantén pulsada la tarjeta (fuera de los campos) para arrastrarla y cambiar el orden.</div><button class="bibtn${e.bi?' on':''}" data-bitog="${e.id}">🔁 Biserie con el siguiente${e.bi?' ✓':''}</button><button class="del" data-delx="${e.id}">Eliminar ejercicio</button></div>`;
     if(!locked){
       if(hasLast){const lc=prevArr.map(x=>{if(!x||!(x[0]||x[1]))return "";return ty==='cardio'?`${x[0]||'—'}·${x[1]||'—'}′`:ty==='reps'?`${x[1]||'—'}r`:`${x[0]||'—'}×${x[1]||'—'}`}).filter(Boolean).join("  ");
         h+=`<button class="lastfill" data-fill="${e.id}"><span class="lftxt"><b>Última vez</b> ${lc}</span><span class="lfic">🔁</span></button>`;}
@@ -1058,7 +1059,7 @@ function renderEntreno(){const _t=S.sessions[TODAY];
       else _mid=`<span class="inp"><input inputmode="decimal" placeholder="${U()}" value="${cv[0]}" data-e="${e.id}" data-i="${i}" data-f="0"><span class="x">×</span><input inputmode="numeric" placeholder="reps" value="${cv[1]}" data-e="${e.id}" data-i="${i}" data-f="1"></span>`;
       const _rc=`<span class="rcell${cv[2]?'':' empty'}"${locked?'':` data-rest="${e.id}" data-ri="${i}"`}>${cv[2]?fmtRest(cv[2]):'—'}</span>`;
       const _oc=locked?`<span class="ocell none">—</span>`:`<span class="ocell${_tg?'':' none'}">${_tg?`${_tg.main}<small>${_tg.tag}</small>`:'—'}</span>`;
-      h+=`<div class="eset${_act?' act':''}${_fill&&!_act?' filled':''}"${locked?'':` data-actset="${e.id}" data-si="${i}"`}><span class="sl">${i+1}</span>${_mid}${_rc}${_oc}</div>`;
+      h+=`<div class="eset${_act?' act':''}${_fill&&!_act?' filled':''}"${locked?'':` data-actset="${e.id}" data-si="${i}"`}><span class="sl">${i+1}${(ty!=='cardio'&&cv[3])?`<small class="stime">⏱${fmtRest(+cv[3])}</small>`:''}</span>${_mid}${_rc}${_oc}</div>`;
     }
     if(ed&&!locked)h+=`<div class="stepbar"><button data-dec="${e.id}">−</button><b>${e.s} ${ty==='cardio'?'tramos':'series'}</b><button data-inc="${e.id}">+</button></div>`;
     if(ty==='cardio'&&!locked){const _pl=seqPlan(e.id);h+=`<button class="seqbtn" data-seq="${e.id}">▶ Iniciar tramos automáticos${_pl.n?`<small>${_pl.n} tramos · ${seqFmt(_pl.tot)} en total</small>`:'<small>rellena nivel y minutos en los tramos</small>'}</button>`;}
@@ -1089,6 +1090,7 @@ function bindEntreno(){
   document.querySelectorAll("#entrenoBody textarea[data-note]").forEach(inp=>{const grow=()=>{inp.style.height="auto";inp.style.height=Math.max(38,inp.scrollHeight)+"px"};grow();inp.addEventListener("input",()=>{const t=ensureToday();if(!t.startAt)t.startAt=Date.now();t.exnotes[inp.dataset.note]=inp.value;grow();persist()})});
   document.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const id=b.dataset.ed;editSet.has(id)?editSet.delete(id):editSet.add(id);renderEntreno()});
   document.querySelectorAll("[data-ef]").forEach(inp=>{const ev=inp.tagName==="SELECT"?"change":"input";inp.addEventListener(ev,()=>{const ex=entForkEx().find(x=>x.id===inp.dataset.e);if(!ex)return;ex[inp.dataset.ef]=inp.value;persist();if(inp.dataset.ef==="type"||inp.dataset.ef==="mg")renderEntreno()})});
+  document.querySelectorAll('[data-ef="n"]').forEach(inp=>inp.addEventListener("change",()=>{const ex=entForkEx().find(x=>x.id===inp.dataset.e);if(!ex)return;const hit=exbankFind(inp.value);if(hit){ex.n=hit.n;ex.mg=hit.mg;ex.type=hit.type;persist();renderEntreno();toast("✓ "+hit.n+" · "+hit.mg)}}));
   document.querySelectorAll("[data-inc]").forEach(b=>b.onclick=()=>{const ex=entForkEx().find(x=>x.id===b.dataset.inc);if(ex){ex.s++;persist();renderEntreno()}});
   document.querySelectorAll("[data-dec]").forEach(b=>b.onclick=()=>{const ex=entForkEx().find(x=>x.id===b.dataset.dec);if(ex&&ex.s>1){ex.s--;persist();renderEntreno()}});
   document.querySelectorAll("[data-delx]").forEach(b=>b.onclick=()=>confirmSheet("Eliminar ejercicio","¿Quitar este ejercicio de HOY? (no afecta a tu rutina de Perfil)",()=>{const ov=entForkEx().filter(x=>x.id!==b.dataset.delx);S.sessions[TODAY].exOverride=ov;persist();renderEntreno()},"Eliminar"));
@@ -1096,8 +1098,8 @@ function bindEntreno(){
   document.querySelectorAll("[data-bitog]").forEach(b=>b.onclick=()=>{const ex=entForkEx().find(x=>x.id===b.dataset.bitog);if(ex){ex.bi=!ex.bi;persist();renderEntreno()}});
   const _we=document.getElementById("warmEdit");if(_we)_we.onclick=editWarmup;
   // serie activa: foco en input o tap en la fila
-  document.querySelectorAll("#entrenoBody .eset[data-actset] input,#entrenoBody .eset[data-actset] select").forEach(inp=>inp.addEventListener("focus",()=>{const row=inp.closest(".eset");window._actSet={exId:row.dataset.actset,i:+row.dataset.si};window._chronoTgt='set';paintActive()}));
-  document.querySelectorAll("#entrenoBody .eset[data-actset]").forEach(row=>row.addEventListener("click",ev=>{if(ev.target.closest("input,select,.rcell"))return;window._actSet={exId:row.dataset.actset,i:+row.dataset.si};window._chronoTgt='set';paintActive()}));
+  document.querySelectorAll("#entrenoBody .eset[data-actset] input,#entrenoBody .eset[data-actset] select").forEach(inp=>inp.addEventListener("focus",()=>{const row=inp.closest(".eset");window._actSet={exId:row.dataset.actset,i:+row.dataset.si};window._chronoTgt='set';paintActive();try{renderExtras()}catch(e){}}));
+  document.querySelectorAll("#entrenoBody .eset[data-actset]").forEach(row=>row.addEventListener("click",ev=>{if(ev.target.closest("input,select,.rcell"))return;window._actSet={exId:row.dataset.actset,i:+row.dataset.si};window._chronoTgt='set';paintActive();try{renderExtras()}catch(e){}}));
   // descanso por serie
   document.querySelectorAll("#entrenoBody .rcell[data-rest]").forEach(c=>c.addEventListener("click",ev=>{ev.stopPropagation();openRestPick(c.dataset.rest,+c.dataset.ri)}));
   // rellenar "igual que la última vez"
@@ -1745,11 +1747,18 @@ function setChronoMode(on){chronoMode=on;const T=document.getElementById("timer"
   refreshTimerFace()}
 /* El cronómetro apunta al objetivo seleccionado: si hay una serie de ejercicio activa la rellena; si el objetivo es el Extra, registra una serie del extra. */
 function logChrono(secs){secs=Math.round(secs);if(secs<=0)return;
-  if(window._chronoTgt==='set'&&window._actSet&&!window._entLocked){const as=window._actSet;const list=entDayEx();const ex=list.find(x=>x.id===as.exId);
-    if(ex&&exType(ex)==='cardio'){const t=ensureToday();t.entries[as.exId]=t.entries[as.exId]||[];t.entries[as.exId][as.i]=t.entries[as.exId][as.i]||["",""];while(t.entries[as.exId][as.i].length<2)t.entries[as.exId][as.i].push("");t.entries[as.exId][as.i][1]=String(Math.max(0.1,Math.round(secs/60*10)/10));
+  // 1) Si el objetivo es un Extra elegido a propósito → registra serie del extra
+  if(window._chronoTgt==='extra'&&window._actExtra&&extraById(window._actExtra)){logExtraBout(window._actExtra,secs);return}
+  // 2) Si hay una serie activa de CUALQUIER ejercicio → apunta el tiempo en esa serie
+  if(window._actSet&&window._actSet.exId&&!window._entLocked){const as=window._actSet;const list=entDayEx();const ex=list.find(x=>x.id===as.exId);
+    if(ex){const ty=exType(ex);const t=ensureToday();t.entries[as.exId]=t.entries[as.exId]||[];t.entries[as.exId][as.i]=t.entries[as.exId][as.i]||["",""];
+      if(ty==='cardio'){while(t.entries[as.exId][as.i].length<2)t.entries[as.exId][as.i].push("");t.entries[as.exId][as.i][1]=String(Math.max(0.1,Math.round(secs/60*10)/10));}
+      else{while(t.entries[as.exId][as.i].length<4)t.entries[as.exId][as.i].push("");t.entries[as.exId][as.i][3]=secs;}
       if(as.i+1<ex.s)window._actSet={exId:as.exId,i:as.i+1};
-      persist();if(curView==="entreno"&&!window._entLocked){try{renderEntreno()}catch(e){}}toast("✓ Tiempo del tramo: "+fmtRest(secs)+" · "+ex.n);return}}
-  logExtraBout(window._actExtra,secs)}
+      persist();if(curView==="entreno"&&!window._entLocked){try{renderEntreno()}catch(e){}}toast("✓ Tiempo "+fmtRest(secs)+" · "+ex.n+(ty==='cardio'?"":" (serie "+(as.i+1)+")"));return}}
+  // 3) Fallback: extra por defecto
+  if(window._actExtra&&extraById(window._actExtra)){logExtraBout(window._actExtra,secs);return}
+  toast("Toca una serie o un extra para registrar el tiempo")}
 document.getElementById("tMode").onclick=()=>{if(chronoMode&&chRun){const secs=Math.round(chElapsed);if(secs>0)logChrono(secs)}setChronoMode(!chronoMode)};
 function toggleChrono(){const T=document.getElementById("timer");
   if(!chRun){chRun=true;chStart=Date.now()-chElapsed*1000;T.classList.add("run");document.getElementById("tStart").textContent="Parar";acquireWake();chTimer=setInterval(tickChrono,200);refreshTimerFace()}
@@ -1844,7 +1853,7 @@ function renderExtras(){const box=document.getElementById("extrasBox");if(!box)r
   if(!window._actExtra&&xs.length)window._actExtra=xs[0].id;
   let h=`<div class="xhdr"><b>➕ Extra diario</b><button class="xadd2" id="xAddBtn">+ práctica</button></div>`;
   if(!xs.length){h+=`<div class="xcard"><div style="font-size:12.5px;color:var(--mut2)">Añade una práctica diaria (colgarte en barra, estiramientos, grip…). Se registra por series con el cronómetro, aunque ya hayas entrenado ese día.</div></div>`;box.innerHTML=h;bindExtras();return}
-  xs.forEach(x=>{const bouts=todayBouts(x.id);const sum=bouts.reduce((a,b)=>a+(+b||0),0);const goal=x.goal||1;const pct=Math.min(100,Math.round(sum/goal*100));const active=window._actExtra===x.id;
+  xs.forEach(x=>{const bouts=todayBouts(x.id);const sum=bouts.reduce((a,b)=>a+(+b||0),0);const goal=x.goal||1;const pct=Math.min(100,Math.round(sum/goal*100));const active=window._chronoTgt==='extra'&&window._actExtra===x.id;
     h+=`<div class="xcard${active?' act':''}" data-xid="${x.id}"><div class="xhd"><span class="xnm">${escH(x.emoji||'🧗')} ${escH(x.name)}</span><button class="dots" data-xed="${x.id}">⋮</button></div>`+
     `<div class="xgoalrow">Hoy <b>${fmtRest(sum)}</b> <span>/ ${fmtRest(goal)}</span><span class="pc">${pct}%</span></div>`+
     `<div class="xbar"><span class="${sum>=goal?'full':''}" style="width:${pct}%"></span></div>`+
@@ -1863,7 +1872,9 @@ function openExtraHistory(xid){const x=extraById(xid);if(!x)return;
 function bindExtras(){const ab=document.getElementById("xAddBtn");if(ab)ab.onclick=()=>editExtra(null);
   document.querySelectorAll("#extrasBox [data-xed]").forEach(b=>b.onclick=()=>editExtra(b.dataset.xed));
   document.querySelectorAll("#extrasBox [data-xadd]").forEach(b=>b.onclick=()=>openBoutPick(b.dataset.xadd));
-  document.querySelectorAll("#extrasBox [data-xuse]").forEach(b=>b.onclick=()=>{window._actExtra=b.dataset.xuse;window._chronoTgt='extra';if(!chronoMode)setChronoMode(true);renderExtras();toast("Cronómetro listo para: "+((extraById(b.dataset.xuse)||{}).name||""))});
+  document.querySelectorAll("#extrasBox [data-xuse]").forEach(b=>b.onclick=()=>{const id=b.dataset.xuse;const wasActive=window._chronoTgt==='extra'&&window._actExtra===id;
+    if(wasActive){window._chronoTgt='set';renderExtras();toast("Cronómetro vuelto a las series del entreno")}
+    else{window._actExtra=id;window._chronoTgt='extra';if(!chronoMode)setChronoMode(true);renderExtras();toast("Cronómetro apuntando a: "+((extraById(id)||{}).name||""))}});
   document.querySelectorAll("#extrasBox [data-xbout]").forEach(b=>b.onclick=()=>{const p=b.dataset.xbout.split(":"),xid=p[0],i=+p[1];const _d=xToday();if(S.extraLog[_d]&&S.extraLog[_d][xid]){S.extraLog[_d][xid].splice(i,1);if(!S.extraLog[_d][xid].length)delete S.extraLog[_d][xid];persist();extraDirty();renderExtras()}})}
 function openBoutPick(xid){const vals=[];for(let s=5;s<=300;s+=5)vals.push(s);const ci=vals.indexOf(30);
   openSheet(`<h4>Añadir serie</h4><div class="sub">Duración · ${(extraById(xid)||{}).name||''}</div><div class="rwheelwrap"><div class="rwheelband"></div><div class="rwheel" id="boutWheel"><div class="rwpad"></div>${vals.map(v=>`<div class="rwitem">${fmtRest(v)}</div>`).join("")}<div class="rwpad"></div></div></div><button class="btn-blue" id="boutSave" style="margin-bottom:8px">Añadir</button><button class="cancel" id="boutCancel">Cancelar</button>`);
